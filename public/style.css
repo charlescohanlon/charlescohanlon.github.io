@@ -99,7 +99,7 @@ main section {
 }
 
 .about-section h1 {
-  margin: 0 auto;
+  margin: 0;
 }
 
 .project-section {
@@ -112,6 +112,7 @@ main section {
 
 .navbar {
   position: fixed;
+  z-index: 1;
   background: var(--navbar-bg-primary);
   width: 5rem;
   transition: width var(--transition-speed) ease;
@@ -139,6 +140,8 @@ main section {
 }
 
 .nav-item:first-child span {
+  opacity: 0;
+  transition: opacity calc(var(--transition-speed) / 2) linear;
   position: relative;
   left: 1.5rem;
   width: 8.5rem;
@@ -148,13 +151,12 @@ main section {
   letter-spacing: 0.3ch;
 }
 
-.test {
-  height: 7.5rem;
-  background-color: red;
-}
-
 .navbar:hover .nav-item:first-child svg {
   transform: rotateY(180deg);
+}
+
+.navbar:hover .nav-item:first-child span {
+  opacity: 1;
 }
 
 .nav-link {
