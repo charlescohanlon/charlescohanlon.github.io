@@ -1,22 +1,60 @@
 :root {
   font-size: 16px;
   font-family: "Roboto", sans-serif;
+  --gradient-orange: #f69d3c;
+  --gradient-blue: #3f87a6;
+  --gradient-white: #ebf8e1;
   --navbar-text-primary: #b6b6bb;
   --navbar-text-secondary: #ececec;
   --navbar-bg-primary: #23232e;
   --navbar-bg-secondary: #141418;
+  --section-white: #f7f7f7;
+  --section-blue: var(--gradient-blue);
+  --section-orange: var(--gradient-orange);
+  --section-gray: #cecece;
   --transition-speed: 300ms;
 }
 
+html {
+  background-color: var(--navbar-bg-primary);
+  scroll-behavior: smooth;
+}
+
 body {
-  color: black;
-  background-color: white;
   margin: 0;
   padding: 0;
 }
 
 h1 {
   margin: 0;
+  white-space: nowrap;
+}
+
+h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 3rem;
+}
+
+h2:not(#title-section h2) {
+  margin-bottom: 2rem;
+}
+
+h3 {
+  margin: 0;
+}
+
+h4 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+input,
+textarea {
+  font-family: "Roboto", sans-serif;
 }
 
 main {
@@ -31,83 +69,22 @@ main section {
   width: 100%;
 }
 
-.title-section {
-  background: conic-gradient(
-    from 90deg at 12.5% 60vh,
-    #f69d3c,
-    10deg,
-    #3f87a6,
-    350deg,
-    #ebf8e1
-  );
+section > div[class*="content"]:not(div.contact-content) {
+  width: 55vw;
 }
 
-.title-section svg {
-  color: #ebf8e1;
-  height: 2.5rem;
-  position: absolute;
-  left: 50%;
-  bottom: 7vh;
-  transform: translateX(-50%);
-  animation: scrolldown 1s linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+.h-centered {
+  display: flex;
+  justify-content: center;
 }
 
-@keyframes scrolldown {
-  from {
-    bottom: 8vh;
-  }
-  to {
-    bottom: 7vh;
-  }
+.v-centered {
+  display: flex;
+  align-items: center;
 }
 
-.title-header {
-  text-align: center;
-  color: #ebf8e1;
-  border-radius: 10px;
-  position: absolute;
-  left: 50%;
-  top: 40vh;
-  transform: translate(-50%, -50%);
-}
-
-.title-header h1:first-child {
-  font-size: 6rem;
-  letter-spacing: 0.1ch;
-  text-transform: uppercase;
-}
-
-.title-header hr {
-  margin: 0 auto;
-  height: 0.3rem;
-  width: 20%;
-  background-color: #ebf8e1;
-  border: none;
-}
-
-.title-header h1:not(:first-child) {
-  margin: 0.5rem 0;
-  font-family: "Roboto Mono", monospace;
-  height: 6rem;
-  font-size: 2rem;
-}
-
-.about-section {
-  background-color: inherit;
-}
-
-.about-section h1 {
-  margin: 0;
-}
-
-.project-section {
-  background-color: maroon;
-}
-
-.contact-section {
-  background-color: inherit;
+::-webkit-scrollbar {
+  display: none;
 }
 
 .navbar {
@@ -118,6 +95,14 @@ main section {
   transition: width var(--transition-speed) ease;
   overflow: scroll;
   height: 100%;
+}
+
+nav.navbar div.scroll-indicator {
+  position: absolute;
+  top: 0;
+  height: 7.5rem;
+  width: 100%;
+  background-color: var(--navbar-bg-secondary);
 }
 
 .navbar:hover {
@@ -142,8 +127,7 @@ main section {
 .nav-item:first-child span {
   opacity: 0;
   transition: opacity calc(var(--transition-speed) / 2) linear;
-  position: relative;
-  left: 1.5rem;
+  margin-left: 1.5rem;
   width: 8.5rem;
   font-weight: bold;
   text-transform: uppercase;
@@ -183,7 +167,273 @@ main section {
 }
 
 .nav-link:hover {
-  filter: grayscale(0%) opacity(1);
+  filter: grayscale(0) opacity(1);
   color: var(--navbar-text-secondary);
   background: var(--navbar-bg-secondary);
+}
+
+#title-section {
+  background: conic-gradient(
+    from 90deg at 0 60vh,
+    var(--gradient-orange),
+    10deg,
+    var(--gradient-blue),
+    350deg,
+    var(--gradient-white)
+  );
+}
+
+#title-section svg {
+  color: var(--gradient-white);
+  height: 2.5rem;
+  position: absolute;
+  animation: scrolldown 1s linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes scrolldown {
+  from {
+    bottom: 8vh;
+  }
+  to {
+    bottom: 7vh;
+  }
+}
+
+.title-header {
+  text-align: center;
+  color: var(--gradient-white);
+}
+
+.title-header h1 {
+  margin-top: 15rem;
+  font-size: 6rem;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+}
+
+.title-header hr {
+  height: 0.35rem;
+  width: 30%;
+  background-color: var(--gradient-white);
+  border: none;
+}
+
+.title-header h2 {
+  margin-top: 0.65rem;
+  font-family: "Roboto Mono", monospace;
+  font-size: 2rem;
+  width: 55rem;
+}
+
+#about-section {
+  background-color: var(--section-white);
+}
+
+.about-content {
+  text-align: center;
+  flex-direction: column;
+}
+
+.about-content h2 {
+  color: var(--section-blue);
+}
+
+.about-content-carousel {
+  margin: 0 auto;
+}
+
+.about-content-carousel .carousel-track {
+  display: flex;
+  width: 45%;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.about-content-carousel .carousel-button--left {
+  margin-right: 2rem;
+}
+
+.about-content-carousel .carousel-button--right {
+  margin-left: 2rem;
+}
+
+.about-content-carousel button[class*="carousel-button"] {
+  border: none;
+  color: #141418;
+  background-color: transparent;
+  margin: 2rem;
+  width: 5%;
+}
+
+.about-content-carousel button[class*="carousel-button"]:hover {
+  color: #a0a0a0;
+}
+
+.about-content-carousel img {
+  object-fit: cover;
+  width: 100%;
+}
+
+.about-content .carousel-nav {
+  margin: 1rem 0;
+}
+
+.carousel-nav button {
+  border: none;
+  border-radius: 100%;
+  height: 13.5px;
+  width: 13.5px;
+  background: var(--section-gray);
+  margin: 0 0.15rem;
+}
+
+/* Shows up because it is after .carousel-nav button in the stylesheet */
+button.current-carousel-slide-nav {
+  background: #141418;
+}
+
+.about-content
+  .carousel-nav
+  button:hover:not(button.current-carousel-slide-nav) {
+  background-color: #a0a0a0;
+}
+
+.about-content p {
+  border-style: solid;
+  border-color: var(--section-blue);
+  border-radius: 15px;
+  padding: 1rem 0.5rem;
+  font-size: 1.25rem;
+}
+
+#project-section {
+  background-color: var(--section-blue);
+}
+
+.project-content h2 {
+  color: var(--section-white);
+}
+
+.project-scroll {
+  background-color: var(--section-white);
+  height: 75vh;
+  overflow-y: scroll;
+}
+
+.project-item {
+  border-radius: 5px;
+  background-color: var(--section-gray);
+  margin: 0 1rem 1rem;
+}
+
+div.project-item:first-of-type {
+  margin-top: 1rem;
+}
+
+.project-item img {
+  width: 35%;
+}
+
+.project-item-description {
+  justify-content: flex-end;
+  margin: 1rem;
+}
+.project-item-description h3 {
+  margin-bottom: 0.5rem;
+}
+
+.project-item-description p {
+  margin-bottom: 0.5rem;
+  height: 5rem;
+}
+
+.project-item-description div {
+  display: flex;
+  flex-direction: row;
+}
+
+.project-item-description div svg {
+  height: 1.5rem;
+}
+
+.project-item-description div a {
+  margin: auto 0 auto 0.25rem;
+}
+
+#resume-section {
+  background-color: var(--section-white);
+}
+
+.resume-content h2 {
+  color: var(--section-orange);
+}
+
+.resume-content iframe {
+  height: 75vh;
+  width: 100%;
+  border-radius: 5px;
+}
+
+#contact-section {
+  background-color: var(--section-orange);
+}
+
+.contact-content h2 {
+  color: var(--section-white);
+}
+
+.contact-form {
+  width: 40vw;
+  background-color: var(--section-gray);
+  padding: 4.5rem;
+  border-radius: 5px;
+  flex-direction: column;
+  border-style: solid;
+  border-color: var(--gradient-white);
+}
+
+.contact-content h4 {
+  width: 100%;
+  flex: 0 0 100%;
+  margin-bottom: 0.45rem;
+  font-size: 1.25rem;
+}
+
+.contact-content input[type="text"],
+.contact-content textarea {
+  width: 100%;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  border-width: 0;
+  border-radius: 5px;
+  padding: 4px 8px;
+}
+
+.contact-content input[type="text"]:focus,
+.contact-content textarea:focus {
+  outline-color: var(--section-orange);
+}
+
+.contact-content textarea {
+  resize: none;
+}
+
+.contact-content input[type="submit"] {
+  display: block;
+  margin: 0 auto;
+  width: 6.5rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-style: none;
+  padding: 8px;
+  border-radius: 50px;
+  color: var(--section-white);
+  background-color: var(--section-orange);
+}
+
+.contact-content input[type="submit"]:hover {
+  color: var(--section-orange);
+  background-color: var(--section-white);
 }

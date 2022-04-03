@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap"
       rel="stylesheet"
     />
 
@@ -22,13 +22,14 @@
       crossorigin="anonymous"
     ></script>
 
-    <title>Personal Site</title>
+    <title>Charles O'Hanlon</title>
   </head>
   <body>
     <nav class="navbar">
+      <div class="scroll-indicator"></div>
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="#title-section" class="nav-link">
             <span>Charles O'Hanlon</span>
             <svg
               aria-hidden="true"
@@ -49,7 +50,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="#about-section" class="nav-link">
             <svg
               aria-hidden="true"
               focusable="false"
@@ -70,7 +71,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="#project-section" class="nav-link">
             <svg
               aria-hidden="true"
               focusable="false"
@@ -91,7 +92,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="#resume-section" class="nav-link">
             <svg
               aria-hidden="true"
               focusable="false"
@@ -112,7 +113,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="#contact-section" class="nav-link">
             <svg
               aria-hidden="true"
               focusable="false"
@@ -133,16 +134,15 @@
         </li>
       </ul>
     </nav>
-
     <main>
-      <section class="title-section">
+      <section id="title-section" class="h-centered">
         <div class="title-header">
           <h1>Hello World.</h1>
           <hr />
-          <h1>
+          <h2>
             I'm <strong>Charles O'Hanlon</strong>, a budding web developer and
             chocolate extraordinaire.
-          </h1>
+          </h2>
         </div>
         <svg
           aria-hidden="true"
@@ -160,11 +160,167 @@
           ></path>
         </svg>
       </section>
-      <section class="about-section">
-        <h1>About Me</h1>
+      <section id="about-section" class="h-centered v-centered">
+        <div class="about-content">
+          <h2>About Me</h2>
+          <div class="about-content-carousel v-centered h-centered">
+            <button class="carousel-button--left">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+                <path
+                  fill="currentColor"
+                  d="M256 0C114.6 0 0 114.6 0 256c0 141.4 114.6 256 256 256s256-114.6 256-256C512 114.6 397.4 0 256 0zM384 288H205.3l49.38 49.38c12.5 12.5 12.5 32.75 0 45.25s-32.75 12.5-45.25 0L105.4 278.6C97.4 270.7 96 260.9 96 256c0-4.883 1.391-14.66 9.398-22.65l103.1-103.1c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25L205.3 224H384c17.69 0 32 14.33 32 32S401.7 288 384 288z"
+                />
+              </svg>
+            </button>
+            <div class="carousel-track">
+              <img
+                src="../images/about/carousel1.jpeg"
+                alt=""
+                class="current-slide"
+              />
+              <img src="../images/about/carousel2.jpeg" alt="" />
+              <img src="../images/about/carousel3.jpeg" alt="" />
+              <img src="../images/about/carousel4.jpeg" alt="" />
+            </div>
+            <button class="carousel-button--right">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+                <path
+                  fill="currentColor"
+                  d="M256 0C114.6 0 0 114.6 0 256c0 141.4 114.6 256 256 256s256-114.6 256-256C512 114.6 397.4 0 256 0zM406.6 278.6l-103.1 103.1c-12.5 12.5-32.75 12.5-45.25 0s-12.5-32.75 0-45.25L306.8 288H128C110.3 288 96 273.7 96 256s14.31-32 32-32h178.8l-49.38-49.38c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l103.1 103.1C414.6 241.3 416 251.1 416 256C416 260.9 414.6 270.7 406.6 278.6z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="carousel-nav">
+            <button class="current-carousel-slide-nav"></button>
+            <button></button>
+            <button></button>
+            <button></button>
+          </div>
+          <p>
+            I'm a student currently studying computer science at De Anza
+            college. When I'm not working, studying, or coding, I like to watch
+            movies and spend time with friends. My main interests are web
+            development (fullstack), applications of AI/ML, and startups.
+          </p>
+        </div>
       </section>
-      <section class="project-section"></section>
-      <section class="contact-section"></section>
+      <section id="project-section" class="h-centered v-centered">
+        <div class="project-content">
+          <h2>My Projects</h2>
+          <div class="project-scroll">
+            <div class="project-item v-centered">
+              <img src="../images/projects/TodoListAppPreview.png" alt="" />
+              <div class="project-item-description">
+                <h3>Todo List Web App</h3>
+                <p>
+                  A todo list app built with React and Bootstrap. The web app is
+                  used to keep a list of todo items, with a clean and responsive
+                  UI that utilizes JSX, components, props, and state. As well as
+                  Bootstrap grid, containers, and component styles.
+                </p>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
+                    <!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+                    <path
+                      d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"
+                    />
+                  </svg>
+                  <a
+                    href="https://github.com/charlescohanlon/todo-list-app"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    >https://github.com/charlescohanlon/todo-list-app</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="project-item v-centered">
+              <img src="../images/projects/PersonalSitePreview.png" alt="" />
+              <div class="project-item-description">
+                <h3>Personal Website</h3>
+                <p>
+                  My personal website built with vanilla JavaScript CSS and
+                  HTML. A single-page website, featuring a dynamic navbar with a
+                  scroll indicator, a controllable carousel, an iframe embedded
+                  pdf, and a form.
+                </p>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
+                    <!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+                    <path
+                      d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"
+                    />
+                  </svg>
+                  <a
+                    href="https://github.com/charlescohanlon/personal-site"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    >https://github.com/charlescohanlon/personal-site</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="project-item v-centered">
+              <img src="../images/projects/ATCSPreview.png" alt="" />
+              <div class="project-item-description">
+                <h3>Autonomous Trash Collection System (ATCS)</h3>
+                <p>
+                  A semi-functional prototype for an automous aerial drone and
+                  watercraft system that collects trash floating on bodies of
+                  water. Software built with Rust, Python, and Swift.
+                </p>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                    <!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+                    <path
+                      d="M188.3 147.1C195.8 142.8 205.1 142.1 212.5 147.5L356.5 235.5C363.6 239.9 368 247.6 368 256C368 264.4 363.6 272.1 356.5 276.5L212.5 364.5C205.1 369 195.8 369.2 188.3 364.9C180.7 360.7 176 352.7 176 344V167.1C176 159.3 180.7 151.3 188.3 147.1V147.1zM512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM256 48C141.1 48 48 141.1 48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48z"
+                    />
+                  </svg>
+                  <a
+                    href="https://drive.google.com/file/d/1GBUrPP2hxfxqb4K_4Z9g5az5-W8I7rjW/view?usp=sharing"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    >https://drive.google.com/Capstone-Video</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="resume-section" class="h-centered v-centered">
+        <div class="resume-content">
+          <h2>My Resume</h2>
+          <iframe src="../images/Charles O'Hanlon Public Resume.pdf"></iframe>
+        </div>
+      </section>
+      <section id="contact-section" class="h-centered v-centered">
+        <div class="contact-content">
+          <h2>Contact Me</h2>
+          <div class="contact-form v-centered">
+            <h4>Subject</h4>
+            <input
+              id="contact-subject-input"
+              name="Subject"
+              type="text"
+              autocomplete="off"
+            />
+            <h4>Body</h4>
+            <textarea
+              id="contact-body-input"
+              name="Body"
+              cols="30"
+              rows="10"
+            ></textarea>
+            <input value="Send" type="submit" />
+          </div>
+        </div>
+      </section>
     </main>
+    <script src="../index.js" charset="utf-8"></script>
   </body>
+  <footer></footer>
 </html>

@@ -1,1 +1,1 @@
-Need to link font awesome license.
+The personal website of Charles O'Hanlon.
