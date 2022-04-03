@@ -1,6 +1,6 @@
 /*
- * Todo (not in chronological order): organize/refactor code and images, comment code
- * *fill in content, responsiveness, make things not shift on reload?, fetch weather
+ * Todo (not in chronological order): organize/refactor code and images, comment code,
+ * responsiveness, make things not shift on reload?, fetch weather
  * button hover sweep right to left?, *footer
  * 
  * Known bugs: when menu changes url reload doesnt reset 
@@ -110,6 +110,6 @@ const sendMessageBtn = document.querySelector('div.contact-content input[type="s
 sendMessageBtn.addEventListener('click', () => {
     const subject = document.getElementById('contact-subject-input').value;
     const body = document.getElementById('contact-body-input').value;
-    window.open('mailto:charlescohanlon.inquiries@gmail.com?subject=' + subject + '&body=' + body);
+    window.open('mailto:charlesohanlon.inquiries@gmail.com?subject=' + subject + '&body=' + body);
 });
 
