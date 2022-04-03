@@ -3,11 +3,7 @@
  * responsiveness, make things not shift on reload?, fetch weather
  * button hover sweep right to left?, *footer
  * 
- * Known bugs: when menu changes url reload doesnt reset 
- * 
- * Todo: 
- *  0. Footer (however make sure it doesn't interfere with scroll indicator)
- *  3. host site on github
+ * Known bugs: when menu changes url reload doesnt reset (use js to scroll?)
  */
 
 
