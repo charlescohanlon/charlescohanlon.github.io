@@ -1,0 +1,88 @@
+---
+import { site, nav } from "@/config";
+
+const { pathname } = Astro.url;
+const isActive = (href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+---
+
+<header class="masthead border-b border-rule bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-[70px]">
+      <a
+        href="/"
+        class="site-title text-xl font-bold text-ink hover:no-underline whitespace-nowrap"
+      >
+        {site.title}
+      </a>
+      <nav class="hidden lg:flex items-center gap-6 text-base">
+        {
+          nav.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                "masthead-link hover:no-underline",
+                isActive(item.href)
+                  ? "text-accent font-semibold"
+                  : "text-ink",
+              ]}
+            >
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+      <button
+        id="mobile-menu-btn"
+        class="lg:hidden p-2 -mr-2 text-ink"
+        aria-label="Toggle menu"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <nav
+      id="mobile-menu"
+      class="lg:hidden hidden border-t border-rule py-3"
+    >
+      <ul class="flex flex-col gap-1 text-base">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  "block py-2 hover:no-underline",
+                  isActive(item.href)
+                    ? "text-accent font-semibold"
+                    : "text-ink",
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById("mobile-menu-btn");
+  const menu = document.getElementById("mobile-menu");
+  btn?.addEventListener("click", () => menu?.classList.toggle("hidden"));
+</script>

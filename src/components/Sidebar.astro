@@ -1,0 +1,143 @@
+---
+import { site } from "@/config";
+const { author, social } = site;
+---
+
+<aside class="md:sticky md:top-8 self-start author-profile">
+  <div
+    class="flex flex-col items-center md:items-start text-center md:text-left"
+  >
+    <div
+      class="w-44 h-44 md:w-48 md:h-48 rounded-full overflow-hidden bg-gray-100 mb-4 border border-rule"
+    >
+      <img
+        src={author.photo}
+        alt={author.name}
+        class="w-full h-full object-cover"
+        onerror="this.style.display='none'"
+      />
+    </div>
+
+    <h3 class="author-name text-lg font-bold text-ink m-0">
+      {author.name}
+    </h3>
+    <p class="author-bio text-sm text-ink mt-2 leading-snug">
+      {author.bio}
+    </p>
+
+    <ul class="author-links text-sm mt-4 space-y-2 w-full not-prose">
+      {
+        author.affiliation && (
+          <li class="flex items-start gap-2 justify-center md:justify-start text-ink">
+            <span aria-hidden class="w-4 inline-block text-center">
+              🏛
+            </span>
+            <span>{author.affiliation}</span>
+          </li>
+        )
+      }
+      {
+        author.location && (
+          <li class="flex items-start gap-2 justify-center md:justify-start text-ink">
+            <span aria-hidden class="w-4 inline-block text-center">
+              📍
+            </span>
+            <span>{author.location}</span>
+          </li>
+        )
+      }
+      {
+        author.email && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">
+              ✉
+            </span>
+            <a href={`mailto:${author.email}`}>Email</a>
+          </li>
+        )
+      }
+      {
+        social.googleScholar && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">
+              🎓
+            </span>
+            <a href={social.googleScholar} target="_blank" rel="noopener">
+              Google Scholar
+            </a>
+          </li>
+        )
+      }
+      {
+        social.orcid && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">
+              iD
+            </span>
+            <a href={social.orcid} target="_blank" rel="noopener">
+              ORCID
+            </a>
+          </li>
+        )
+      }
+      {
+        social.pubmed && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">
+              📚
+            </span>
+            <a href={social.pubmed} target="_blank" rel="noopener">
+              PubMed
+            </a>
+          </li>
+        )
+      }
+      {
+        social.github && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">
+              {"</>"}
+            </span>
+            <a href={social.github} target="_blank" rel="noopener">
+              GitHub
+            </a>
+          </li>
+        )
+      }
+      {
+        social.bluesky && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">
+              ☁
+            </span>
+            <a href={social.bluesky} target="_blank" rel="noopener">
+              Bluesky
+            </a>
+          </li>
+        )
+      }
+      {
+        social.twitter && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">𝕏</span>
+            <a href={social.twitter} target="_blank" rel="noopener">
+              Twitter
+            </a>
+          </li>
+        )
+      }
+      {
+        social.linkedin && (
+          <li class="flex items-start gap-2 justify-center md:justify-start">
+            <span aria-hidden class="w-4 inline-block text-center">
+              in
+            </span>
+            <a href={social.linkedin} target="_blank" rel="noopener">
+              LinkedIn
+            </a>
+          </li>
+        )
+      }
+    </ul>
+  </div>
+</aside>

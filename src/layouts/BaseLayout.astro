@@ -1,0 +1,58 @@
+---
+import "@/styles/global.css";
+import Header from "@/components/Header.astro";
+import Sidebar from "@/components/Sidebar.astro";
+import Footer from "@/components/Footer.astro";
+import { site } from "@/config";
+
+interface Props {
+  title?: string;
+  description?: string;
+  hideSidebar?: boolean;
+}
+
+const {
+  title,
+  description = site.tagline,
+  hideSidebar = false,
+} = Astro.props;
+const pageTitle = title ? `${title} · ${site.title}` : site.title;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={site.title}
+      href={new URL("rss.xml", Astro.site)}
+    />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <Header />
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+      {
+        hideSidebar ? (
+          <main>
+            <slot />
+          </main>
+        ) : (
+          <div class="grid grid-cols-1 md:grid-cols-[16rem_1fr] lg:grid-cols-[18rem_1fr] gap-10">
+            <Sidebar />
+            <main class="min-w-0">
+              <slot />
+            </main>
+          </div>
+        )
+      }
+    </div>
+    <Footer />
+  </body>
+</html>

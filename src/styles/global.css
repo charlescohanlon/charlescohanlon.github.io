@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-accent: #52adc8;
+  --color-accent-hover: #2f7f93;
+  --color-ink: #494e52;
+  --color-heading: #494e52;
+  --color-muted: #7a8288;
+  --color-rule: #f2f3f3;
+  --color-masthead-link: #494e52;
+  --color-footer-bg: #f2f3f3;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI",
+    "Helvetica Neue", "Lucida Grande", Arial, sans-serif;
+  --font-mono: Monaco, Consolas, "Lucida Console", monospace;
+  --font-caption: Georgia, Times, serif;
+}
+
+@layer base {
+  html {
+    @apply font-sans text-ink antialiased;
+    font-size: 16px;
+  }
+
+  body {
+    @apply bg-white;
+    line-height: 1.5;
+  }
+
+  a {
+    @apply text-accent no-underline;
+  }
+
+  a:hover {
+    @apply text-accent-hover underline;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-heading;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-top: 1.414em;
+    margin-bottom: 0.5em;
+  }
+
+  h1 {
+    font-size: 1.953em;
+    letter-spacing: -0.025em;
+  }
+  h2 {
+    font-size: 1.5625em;
+    letter-spacing: -0.025em;
+  }
+  h3 {
+    font-size: 1.25em;
+  }
+  h4 {
+    font-size: 1em;
+  }
+}
+
+.page__title {
+  font-size: 1.953em;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.masthead {
+  font-family: var(--font-sans);
+}
+
+.masthead-link {
+  color: var(--color-masthead-link);
+  transition: color 0.15s ease;
+}
+
+.masthead-link:hover {
+  color: var(--color-accent-hover);
+}
+
+.author-bio {
+  font-style: italic;
+  color: var(--color-muted);
+}

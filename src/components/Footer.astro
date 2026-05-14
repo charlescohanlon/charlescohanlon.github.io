@@ -1,0 +1,27 @@
+---
+import { site } from "@/config";
+const { social } = site;
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-[var(--color-footer-bg)] mt-16 py-8 text-sm text-muted">
+  <div
+    class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center gap-2"
+  >
+    <ul class="flex flex-wrap items-center justify-center gap-4 not-prose">
+      {
+        social.github && (
+          <li>
+            <a href={social.github} target="_blank" rel="noopener">
+              GitHub
+            </a>
+          </li>
+        )
+      }
+      <li>
+        <a href="/rss.xml">Feed</a>
+      </li>
+    </ul>
+    <p>© {year} {site.author.name}. Powered by Astro &amp; Tailwind, inspired by <a href="https://academicpages.github.io/" target="_blank" rel="noopener">AcademicPages</a>.</p>
+  </div>
+</footer>

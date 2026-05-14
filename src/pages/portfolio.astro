@@ -1,0 +1,54 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const projects = (await getCollection("portfolio")).sort((a, b) => {
+  const aTime = a.data.date?.valueOf() ?? 0;
+  const bTime = b.data.date?.valueOf() ?? 0;
+  return bTime - aTime;
+});
+---
+
+<BaseLayout title="Portfolio">
+  <header class="page__title-wrap mb-6">
+    <h1 class="page__title m-0">Portfolio</h1>
+  </header>
+
+  {
+    projects.length === 0 ? (
+      <p class="text-sm text-muted">
+        No projects yet. Add Markdown files in <code>src/content/portfolio/</code>.
+      </p>
+    ) : (
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {projects.map((p) => (
+          <article class="border border-rule rounded-md p-4 flex flex-col">
+            {p.data.image && (
+              <img
+                src={p.data.image}
+                alt={p.data.title}
+                class="w-full h-40 object-cover rounded mb-3"
+              />
+            )}
+            <h2 class="font-semibold">{p.data.title}</h2>
+            <p class="text-sm text-muted mt-1 flex-1">
+              {p.data.description}
+            </p>
+            <p class="text-sm mt-3 flex gap-3">
+              {p.data.link && (
+                <a href={p.data.link} target="_blank" rel="noopener">
+                  [Link]
+                </a>
+              )}
+              {p.data.code && (
+                <a href={p.data.code} target="_blank" rel="noopener">
+                  [Code]
+                </a>
+              )}
+            </p>
+          </article>
+        ))}
+      </div>
+    )
+  }
+</BaseLayout>

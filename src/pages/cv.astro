@@ -1,0 +1,80 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="CV">
+  <article class="cv">
+    <header class="page__title-wrap mb-6">
+      <h1 class="page__title m-0">CV</h1>
+    </header>
+
+    <div class="prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-heading prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-2 prose-h2:border-b prose-h2:border-rule prose-h3:text-base prose-h3:mt-4 prose-h3:mb-1 prose-ul:my-2 prose-li:my-1">
+      <h2 id="education">Education</h2>
+      <ul>
+        <li><strong>New York University, Courant Institute</strong> - M.S. in Computer Science (Expected May 2028)</li>
+        <li><strong>California Polytechnic State University, San Luis Obispo</strong> - B.S. in Computer Science, Minor in Mathematics (Mar 2026). Major GPA: 3.94; GPA: 3.86</li>
+      </ul>
+
+      <h2 id="research-experience">Research Experience</h2>
+      <ul>
+        <li>
+          <strong>Senior Research Assistant</strong> - UChicago, Argonne National Lab (Jun–Sep 2025)
+          <ul>
+            <li>Advised by Dr. Silvio Rizzi; U.S. Dept. of Energy lab</li>
+            <li>Kolmogorov-Arnold Networks for implicit neural representations of 3D scientific volumes; +2–15 dB PSNR over SIREN/MLP baselines</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Undergraduate Research Assistant</strong> - Ventura Lab, Cal Poly (Jan–Jun 2025)
+          <ul>
+            <li>Advised by Prof. Johnathan Ventura; funded by the National Cancer Institute</li>
+            <li>Action segmentation from monocular video; MAE &lt; 1 repetition vs. clinician annotations</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Undergraduate Research Assistant</strong> - AI for Search &amp; Rescue Lab, Cal Poly (Sep 2023–Dec 2024)
+          <ul>
+            <li>Advised by Prof. Franz Kurfess; sponsored by Menlo Park Fire Protection District</li>
+            <li>Multimodal location prediction from 1M+ missing person case dataset</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h2 id="industry-experience">Industry Experience</h2>
+      <ul>
+        <li>
+          <strong>ML Engineer Intern</strong> - LandingAI (Sep–Dec 2025)
+          <ul>
+            <li>VLM attention diagnostics, parameter-efficient fine-tuning, and large-scale data distillation</li>
+          </ul>
+        </li>
+        <li>
+          <strong>ML Engineer Intern</strong> - FemtoAI (Jun–Sep 2023)
+          <ul>
+            <li>Neural audio noise reduction; generative data augmentation; automated ML pipeline</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h2 id="posters">Posters &amp; Presentations</h2>
+      <ul>
+        <li><strong>KAN INRs: Kolmogorov-Arnold Neural Networks for Scientific Volumetric Implicit Neural Representations.</strong> Charles O'Hanlon. <em>Learning on the Lawn</em>, Argonne National Laboratory, Aug 2025.</li>
+        <li><strong>Neural Networks for Missing Persons Location Prediction.</strong> Charles O'Hanlon, Brandon Kim, Ameer Arsala. <em>National Missing and Unidentified Persons Conference</em>, Apr 2024.</li>
+      </ul>
+
+      <h2 id="teaching">Teaching</h2>
+      <ul>
+        <li><strong>Teaching Assistant</strong> - CSC 480 Artificial Intelligence, Cal Poly (Sep–Dec 2025)</li>
+        <li><strong>Curriculum Design Contributor</strong> - CSU AI Educational Innovations Challenge (Aug 2025–Present)</li>
+      </ul>
+
+      <h2 id="skills">Skills</h2>
+      <ul>
+        <li><strong>Languages:</strong> Python, C/C++, CUDA</li>
+        <li><strong>ML:</strong> PyTorch, NumPy, Hugging Face Transformers, scikit-learn</li>
+        <li><strong>Distributed/Infra:</strong> CUDA, vLLM, SGLang, Ray, Weights &amp; Biases, Hydra</li>
+        <li><strong>Vision:</strong> OpenCV, MediaPipe, OpenMMLab</li>
+      </ul>
+    </div>
+  </article>
+</BaseLayout>

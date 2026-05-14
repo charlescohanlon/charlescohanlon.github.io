@@ -1,0 +1,57 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} hideSidebar>
+  <article class="max-w-2xl mx-auto">
+    <p class="text-sm text-muted mb-1">
+      {formatDate(post.data.date)}
+      {post.data.updated && (
+        <span>· updated {formatDate(post.data.updated)}</span>
+      )}
+    </p>
+    <h1 class="text-3xl font-bold mb-2">{post.data.title}</h1>
+    {
+      post.data.description && (
+        <p class="text-base text-muted mb-6">
+          {post.data.description}
+        </p>
+      )
+    }
+    {
+      post.data.tags.length > 0 && (
+        <p class="text-xs mb-8 flex flex-wrap gap-2 text-muted">
+          {post.data.tags.map((tag) => (
+            <span class="px-2 py-0.5 rounded-full border border-rule">
+              {tag}
+            </span>
+          ))}
+        </p>
+      )
+    }
+
+    <div class="prose prose-sm sm:prose-base max-w-none">
+      <Content />
+    </div>
+
+    <p class="mt-12 text-sm">
+      <a href="/blog">← Back to blog</a>
+    </p>
+  </article>
+</BaseLayout>

@@ -1,0 +1,74 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const pubs = (await getCollection("publications")).sort(
+  (a, b) => b.data.year - a.data.year
+);
+
+const byYear = pubs.reduce<Record<number, typeof pubs>>((acc, pub) => {
+  (acc[pub.data.year] ||= []).push(pub);
+  return acc;
+}, {});
+
+const years = Object.keys(byYear)
+  .map(Number)
+  .sort((a, b) => b - a);
+---
+
+<BaseLayout title="Publications">
+  <header class="page__title-wrap mb-6">
+    <h1 class="page__title m-0">Publications</h1>
+  </header>
+
+  {
+    years.length === 0 && (
+      <p class="text-sm text-muted">
+        No publications yet. Add Markdown files in{" "}
+        <code>src/content/publications/</code> to populate this page.
+      </p>
+    )
+  }
+
+  {
+    years.map((year) => (
+      <section class="mb-8">
+        <h2 class="text-xl font-bold mb-3 pb-2 border-b border-rule">
+          {year}
+        </h2>
+        <ul class="space-y-4">
+          {byYear[year].map((pub) => (
+            <li>
+              <p class="font-medium text-ink">
+                {pub.data.title}
+              </p>
+              <p class="text-sm text-muted">
+                {pub.data.authors.join(", ")}
+              </p>
+              <p class="text-sm italic text-muted">
+                {pub.data.venue}
+              </p>
+              <p class="text-sm mt-1 flex flex-wrap gap-3">
+                {pub.data.pdf && (
+                  <a href={pub.data.pdf} target="_blank" rel="noopener">
+                    [PDF]
+                  </a>
+                )}
+                {pub.data.code && (
+                  <a href={pub.data.code} target="_blank" rel="noopener">
+                    [Code]
+                  </a>
+                )}
+                {pub.data.project && (
+                  <a href={pub.data.project} target="_blank" rel="noopener">
+                    [Project]
+                  </a>
+                )}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</BaseLayout>

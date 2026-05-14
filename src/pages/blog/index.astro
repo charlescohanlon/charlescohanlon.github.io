@@ -1,0 +1,52 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+---
+
+<BaseLayout title="Blog">
+  <header class="page__title-wrap mb-6">
+    <h1 class="page__title m-0">Blog Posts</h1>
+  </header>
+
+  {
+    posts.length === 0 ? (
+      <p class="text-sm text-muted">
+        Coming soon.
+      </p>
+    ) : (
+      <ul class="space-y-6">
+        {posts.map((post) => (
+          <li>
+            <p class="text-xs text-muted mb-1">
+              {formatDate(post.data.date)}
+            </p>
+            <h2 class="text-lg font-semibold">
+              <a href={`/blog/${post.id}`}>{post.data.title}</a>
+            </h2>
+            {post.data.description && (
+              <p class="text-sm text-muted mt-1">
+                {post.data.description}
+              </p>
+            )}
+            {post.data.tags.length > 0 && (
+              <p class="text-xs mt-2 flex flex-wrap gap-2 text-muted">
+                {post.data.tags.map((tag) => (
+                  <span class="px-2 py-0.5 rounded-full border border-rule">
+                    {tag}
+                  </span>
+                ))}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>
