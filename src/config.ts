@@ -23,6 +23,7 @@ export const site = {
 };
 
 export const nav = [
+  { href: "/", label: "Home" },
   { href: "/publications", label: "Publications" },
   { href: "/teaching", label: "Teaching" },
   { href: "/portfolio", label: "Portfolio" },
