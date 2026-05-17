@@ -14,7 +14,7 @@ export const site = {
   social: {
     github: "https://github.com/charlescohanlon",
     googleScholar: "",
-    twitter: "",
+    twitter: "https://x.com/charles_0hanlon",
     linkedin: "https://linkedin.com/in/charlescohanlon",
     orcid: "",
     pubmed: "",
