@@ -146,3 +146,8 @@
   background-color: var(--shiki-dark-bg) !important;
 }
 
+/* rehype-glue-math-punctuation (run on every markdown body) wraps inline
+   math and its trailing punctuation so a "," or "." never starts a line. */
+.math-punct {
+  white-space: nowrap;
+}

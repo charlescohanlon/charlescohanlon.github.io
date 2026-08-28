@@ -6,6 +6,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import remarkObsidianImages from "./src/plugins/remark-obsidian-images.mjs";
 import rehypeSidenotes from "./src/plugins/rehype-sidenotes.mjs";
+import rehypeGlueMathPunctuation from "./src/plugins/rehype-glue-math-punctuation.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,7 +21,7 @@ export default defineConfig({
   },
   markdown: {
     remarkPlugins: [remarkObsidianImages, remarkMath],
-    rehypePlugins: [rehypeKatex, rehypeSidenotes],
+    rehypePlugins: [rehypeKatex, rehypeGlueMathPunctuation, rehypeSidenotes],
     shikiConfig: {
       themes: {
         light: "github-light",
