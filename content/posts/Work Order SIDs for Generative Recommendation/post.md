@@ -26,7 +26,7 @@ For an input space defined by text and images, the modern approach to building e
 Minimizing the normalized temperature-scaled cross-entropy (NT-Xent) between points is a common approach to instilling semantic similarity in embedding space. NT-Xent is a variation of the InfoNCE loss function. [SimCLR](https://arxiv.org/abs/2002.05709) introduces a general contrastive learning framework. It defines positive items as two views, or augmentations, of the same anchor item in latent space.
 
 $$
-\ell_{i,j} = -\log \frac{\exp\!\big(\mathrm{sim}(\boldsymbol{z}_i, \boldsymbol{z}_j)/\tau\big)}{\sum_{k=1}^{2B} \mathbb{1}_{[k \ne i]} \exp\!\big(\mathrm{sim}(\boldsymbol{z}_i, \boldsymbol{z}_k)/\tau\big)} \tag{1}
+\ell_{i,j} = -\log \frac{\exp\!\big(\mathrm{sim}(\boldsymbol{z}_i, \boldsymbol{z}_j)/\tau\big)}{\sum_{k=1}^{2B} \mathbb{1}_{[k \ne i]} \exp\!\big(\mathrm{sim}(\boldsymbol{z}_i, \boldsymbol{z}_k)/\tau\big)}
 $$
 
 where the latent anchor, positive, and negative items are denoted $\boldsymbol{z}_i, \boldsymbol{z}_j, \boldsymbol{z}_k$, respectively. $B$ is the batch size, so the denominator runs over all $2B$ views in the batch excluding the anchor itself. $\tau$ is the temperature, and $\mathrm{sim}(\cdot,\cdot)$ is a pairwise similarity function. [SimCIT](https://arxiv.org/abs/2506.16683) was one of the first to adapt NT-Xent to the GR domain. They did so for modality alignment purposes. [PLUM](https://arxiv.org/abs/2510.07784) adapted the function to implement co-occurrence. Co-occurrence is a binary similarity signal specialized to GR. PLUM trains a recommendation system on YouTube users' watch histories. Co-occurrence denotes two video embedding items as a positive pair iff they appear together in any user's history. It follows that items are dissimilar when they do not appear together in a history.
@@ -35,13 +35,13 @@ where the latent anchor, positive, and negative items are denoted $\boldsymbol{z
 Semantic IDs (SIDs) are discrete codes that identify an element of the input space. Concretely, "codes" are indices along the codebook-size dimension of the codebook. Let $C$ be the codebook size (i.e., the number of vectors in the codebook), and $N$ be the SID's latent dimension size; then each codebook is a $C \times N$ matrix over the real field. The vector-quantized variational autoencoder ([VQ-VAE](https://arxiv.org/abs/1711.00937)) maps a given element in the input space to a single code. The modern residual quantization variational autoencoder ([RQ-VAE](https://arxiv.org/abs/2203.01941)) uses a tuple of $D$ codes, stacking $D$ codebooks. It forms the SID tuple by taking an index from each layer. Quantization begins from the latent embedding itself, $\boldsymbol{r}_0 = \boldsymbol{z}$, then each codebook recursively quantizes the residual remaining from the one above it according to
 
 $$
-k_d = \mathrm{quantizer}(\boldsymbol{r}_{d-1}), \quad \boldsymbol{r}_d = \boldsymbol{r}_{d-1} - \boldsymbol{e}^{(d)}_{k_d}, \qquad d = 1, \dots, D \tag{2}
+k_d = \mathrm{quantizer}(\boldsymbol{r}_{d-1}), \quad \boldsymbol{r}_d = \boldsymbol{r}_{d-1} - \boldsymbol{e}^{(d)}_{k_d}, \qquad d = 1, \dots, D
 $$
 
 where $\boldsymbol{r}_d$ is the residual remaining at depth $d$, $k_d$ is the code selected from the $d$-th codebook, and $\boldsymbol{e}^{(d)}_{k_d}$ is the corresponding latent vector in that codebook. Concretely, the lookup is nearest-neighbor within the codebook:
 
 $$
-k_d = \arg\min_{k \in \{1,\dots,C\}} \big\lVert \boldsymbol{r}_{d-1} - \boldsymbol{e}^{(d)}_{k} \big\rVert_2. \tag{3}
+k_d = \arg\min_{k \in \{1,\dots,C\}} \big\lVert \boldsymbol{r}_{d-1} - \boldsymbol{e}^{(d)}_{k} \big\rVert_2.
 $$
 
 Stacking codebooks like this increases representational capacity exponentially, while memory footprint remains linear. SIDs can be either unique to a corpus element or non-unique by design. [TIGER](https://arxiv.org/abs/2305.05065) appends an additional unique identifier code to all SIDs that collide. [PLUM](https://arxiv.org/abs/2510.07784) argues that SID collision is a feature, not a bug. Latent code vectors group embeddings into clusters. Codebooks achieve optimal uniformity in code utilization when the latent code vectors are the embedding's equal-size cluster centroids ([GRID](https://arxiv.org/abs/2507.22224)). SIDs are thought of as semantically coarse-to-fine as depth increases. The $d=1$ level is the most general, while later depths model increasingly fine details.
@@ -109,7 +109,7 @@ Prior work showed that contrastive learning is most effective when provided with
 We finetune with the OpsVerse co-occurrence signal via gradient descent on NT-Xent. Embedding model experiments are evaluated on the embedding hitrate ([FORGE](https://arxiv.org/abs/2509.20904)) proxy metric as follows,
 
 $$
-\text{EmbHitRate@}k = \frac{1}{\lvert \mathcal{Q} \rvert}\sum_{q \in \mathcal{Q}} \frac{\lvert \mathcal{R}_q \cap \text{top-}k(q) \rvert}{\lvert \mathcal{R}_q \rvert} \tag{4}
+\text{EmbHitRate@}k = \frac{1}{\lvert \mathcal{Q} \rvert}\sum_{q \in \mathcal{Q}} \frac{\lvert \mathcal{R}_q \cap \text{top-}k(q) \rvert}{\lvert \mathcal{R}_q \rvert}
 $$
 
 where $\mathcal{Q}$ is the set of embedding queries and $\mathcal{R}_q$ is the set of all co-occurrence neighbors for query $q$. Embedding hit rate measures the mean proportion of co-occurrence graph neighbors retrieved in an embedding's $k$ nearest neighbors. It quantifies how well proximity in embedding space represents the co-occurrence graph and has been shown to correlate strongly with downstream GR performance ([FORGE](https://arxiv.org/abs/2509.20904)).
@@ -122,19 +122,19 @@ Producing SIDs optimal for GR is challenging. Simplistic methods tend to suffer 
 All quantizer variants are subject to k-means clustering initialization and dead-code restarting. The two have shown consistent positive results ([LMIndexer](https://arxiv.org/abs/2310.07815), [GenRet](https://arxiv.org/abs/2304.04171), [TIGER](https://arxiv.org/abs/2305.05065)) and have little downside. K-means initialization involves initializing the quantizer's codebook from a k-means fit of the training set. First, RQ-VAE's FFN projects embeddings into the codebook dimension. For Qwen 3.5 0.8B, that means $1024 \rightarrow 64$. Then, we apply Lloyd's algorithm with $256$ clusters, i.e., as many clusters as there are codebook vectors, on residuals for all $3$ codebooks. This variation is specifically rk-means ([QARM](https://arxiv.org/abs/2411.11739)). This gives the codebook a stable warm start, removing the need to initialize at random. For dead-code restarts, training maintains an exponential moving average (EMA) of the in-batch cluster size for each code (initialized to $1.0$ with a decay of $0.99$). In-batch cluster size is the count of embeddings that map to the code during quantization. Each code's corresponding EMA buffer updates every training step. When its EMA falls below the threshold $10^{-4}$, we restart the code, sampling a random latent from the step's batch to replace the dead code's latent vector. The remaining design heuristics we explore present non-linear interaction effects. We sweep the space,
 
 $$
-\begin{aligned} &\{\text{EMA},\ \text{gradient}\} && \text{codebook update} \\ &\times\ \{\text{STE},\ \text{rotation trick}\} && \text{gradient propagation} \\ &\times\ \{\text{none},\ \text{standardization},\ \text{ZCA}\} && \text{feature scaling} \end{aligned} \tag{5}
+\begin{aligned} &\{\text{EMA},\ \text{gradient}\} && \text{codebook update} \\ &\times\ \{\text{STE},\ \text{rotation trick}\} && \text{gradient propagation} \\ &\times\ \{\text{none},\ \text{standardization},\ \text{ZCA}\} && \text{feature scaling} \end{aligned}
 $$
 
 Gradient codebook updates are computed with respect to the reconstruction term, which measures how well the decoding FFN $g(\cdot)$ recovers the embedding $\boldsymbol{x}$ from the latent code $\hat{\boldsymbol{z}}$,
 
 $$
-\hat{\boldsymbol{z}} = \sum^D_{d=1} \boldsymbol{e}^{(d)}_{k_d}, \qquad \mathcal{L}_{\text{recon}} = \big\lVert \boldsymbol{x} - g(\hat{\boldsymbol{z}})\big\rVert_2^2, \tag{6}
+\hat{\boldsymbol{z}} = \sum^D_{d=1} \boldsymbol{e}^{(d)}_{k_d}, \qquad \mathcal{L}_{\text{recon}} = \big\lVert \boldsymbol{x} - g(\hat{\boldsymbol{z}})\big\rVert_2^2,
 $$
 
 as well as a codebook loss term that pulls each level's selected code toward the vector it approximates,
 
 $$
-\mathcal{L}^{(d)}_{\text{codebook}} = \big\lVert \mathrm{sg}[\boldsymbol{r}_{d-1}] - \boldsymbol{e}^{(d)}_{k_d} \big\rVert_2^2 \tag{7}
+\mathcal{L}^{(d)}_{\text{codebook}} = \big\lVert \mathrm{sg}[\boldsymbol{r}_{d-1}] - \boldsymbol{e}^{(d)}_{k_d} \big\rVert_2^2
 $$
 
 where $\mathrm{sg}[\cdot]$ is the stop-gradient operator and $\boldsymbol{r}_{d-1}$ is the residual from the previous level.
@@ -142,13 +142,13 @@ where $\mathrm{sg}[\cdot]$ is the stop-gradient operator and $\boldsymbol{r}_{d-
 Meanwhile, EMA codebook updating replaces the gradient step on $\mathcal{L}_{\text{codebook}}$ with an online Lloyd's algorithm step. Let $\mathcal{B}^{(d)}_k$ be the set of level-$d$ residuals mapped to code $k$ within the batch. We track two EMAs per code: one of the assigned vector sum, the other the assignment count.
 
 $$
-\boldsymbol{m}^{(d)}_{k_d} \leftarrow \gamma\, \boldsymbol{m}^{(d)}_{k_d} + (1-\gamma) \sum_{\boldsymbol{r} \in \mathcal{B}^{(d)}_{k_d}} \boldsymbol{r}, \qquad n^{(d)}_{k_d} \leftarrow \gamma\, n^{(d)}_{k_d} + (1-\gamma) \big|\mathcal{B}^{(d)}_{k_d}\big| \tag{8}
+\boldsymbol{m}^{(d)}_{k_d} \leftarrow \gamma\, \boldsymbol{m}^{(d)}_{k_d} + (1-\gamma) \sum_{\boldsymbol{r} \in \mathcal{B}^{(d)}_{k_d}} \boldsymbol{r}, \qquad n^{(d)}_{k_d} \leftarrow \gamma\, n^{(d)}_{k_d} + (1-\gamma) \big|\mathcal{B}^{(d)}_{k_d}\big|
 $$
 
 and update the code to their ratio,
 
 $$
-\boldsymbol{e}^{(d)}_k \leftarrow \frac{\boldsymbol{m}^{(d)}_k}{n^{(d)}_k} \tag{9}
+\boldsymbol{e}^{(d)}_k \leftarrow \frac{\boldsymbol{m}^{(d)}_k}{n^{(d)}_k}
 $$
 
 where $\gamma$ is the decay rate. Code latent vectors track the running mean of the embeddings assigned to them. This forces the update step to be the cluster centroids, as desired. [MTGRec](https://arxiv.org/abs/2504.04400) reports that this method is more effective than gradient descent for codebook learning.
@@ -163,7 +163,7 @@ q = e + (q - e).detach()
 STE transplants the backward pass gradient across the codebook. STE is a design decision, an inductive bias. Higher-fidelity gradient estimation methods exist. However, as an estimator approaches differentiability, the system approaches an autoencoder. Autoencoders generalize poorly and tend to overfit ([Rotation Trick](https://arxiv.org/abs/2410.06424)). If we disregard the reconstruction loss, STE applies the same gradients to all encoder latents that map to a given code (the Voronoi cell). The rotation trick is an alternative approach to gradient estimation that lets gradients tune based on $\boldsymbol z$'s location within the cell, increasing granularity. The rotation trick replaces the identity transform with a rotation-and-rescale one, carrying $\boldsymbol{e}$ onto $\boldsymbol{q}$,
 
 $$
-\boldsymbol{q} \leftarrow \mathrm{sg}\!\left[\frac{\lVert \boldsymbol{q} \rVert}{\lVert \boldsymbol{e} \rVert} \boldsymbol{R}\right] \boldsymbol{e}, \qquad \frac{\partial \mathcal{L}}{\partial \boldsymbol{x}} = \frac{\partial \mathcal{L}}{\partial \boldsymbol{q}} \frac{\lVert \boldsymbol{q} \rVert}{\lVert \boldsymbol{e} \rVert}\boldsymbol{R} \frac{\partial \boldsymbol{e}}{\partial \boldsymbol{x}} \tag{10}
+\boldsymbol{q} \leftarrow \mathrm{sg}\!\left[\frac{\lVert \boldsymbol{q} \rVert}{\lVert \boldsymbol{e} \rVert} \boldsymbol{R}\right] \boldsymbol{e}, \qquad \frac{\partial \mathcal{L}}{\partial \boldsymbol{x}} = \frac{\partial \mathcal{L}}{\partial \boldsymbol{q}} \frac{\lVert \boldsymbol{q} \rVert}{\lVert \boldsymbol{e} \rVert}\boldsymbol{R} \frac{\partial \boldsymbol{e}}{\partial \boldsymbol{x}}
 $$
 
 where $\boldsymbol{R}$ is computed via Householder matrix reflections.
@@ -171,13 +171,13 @@ where $\boldsymbol{R}$ is computed via Householder matrix reflections.
 Feature scaling data preprocessing is used throughout machine learning to remove first- and second-order structure from a distribution. FFN encoder outputs are typically neither centered nor isotropic. We consider three settings on the quantizer's input. Let $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$ be the mean and covariance of the projected embeddings, estimated over the training set. With "none" whitening, the raw projected embedding is quantized directly. Standardization centers and rescales each dimension independently,
 
 $$
-\tilde{\boldsymbol{z}} = \mathrm{diag}(\boldsymbol{\Sigma})^{-1/2} (\boldsymbol{z} - \boldsymbol{\mu}) \tag{11}
+\tilde{\boldsymbol{z}} = \mathrm{diag}(\boldsymbol{\Sigma})^{-1/2} (\boldsymbol{z} - \boldsymbol{\mu})
 $$
 
 Zero-phase component analysis (ZCA) whitening instead applies the full transform
 
 $$
-\tilde{\boldsymbol{z}} = \boldsymbol{A}^{-1/2} (\boldsymbol{z} - \boldsymbol{\mu}), \qquad \boldsymbol{A}^{-1/2} = \boldsymbol{U} \boldsymbol{\Lambda}^{-1/2} \boldsymbol{U}^{\top} \tag{12}
+\tilde{\boldsymbol{z}} = \boldsymbol{A}^{-1/2} (\boldsymbol{z} - \boldsymbol{\mu}), \qquad \boldsymbol{A}^{-1/2} = \boldsymbol{U} \boldsymbol{\Lambda}^{-1/2} \boldsymbol{U}^{\top}
 $$
 
 for $\boldsymbol{U}$ orthonormal, $\boldsymbol{\Lambda}$ diagonal. ZCA is similar to PCA in that they both decorrelate and enforce unit variance. But ZCA appends the inverse rotation $\boldsymbol{U}$ to $\boldsymbol{U}^\top$, minimizing L2 to the pre-transformed data $\lVert (\boldsymbol{z} - \boldsymbol{\mu}) - \tilde{\boldsymbol{z}} \rVert_2$. [MTGRec](https://arxiv.org/abs/2504.04400) reports that representation whitening improves SID quality.
@@ -185,13 +185,13 @@ for $\boldsymbol{U}$ orthonormal, $\boldsymbol{\Lambda}$ diagonal. ZCA is simila
 We navigate the quantization design space via a screen with a proxy metric, then promote the top 3 configurations to full GR evaluation. The Gini coefficient is our proxy metric. Let $a^{(d)}_{i}$ be the usage count for SID $i$ in $\mathcal{S}^{(d)}=\{s_1, \dots, s_{N_d}\}$, ordered by usage count for the level-$d$ codebook, then
 
 $$
-A(i) = \sum^i_{j=1}a^{(d)}_j \qquad \text{Gini}_d=\frac{2}{N_d}\sum_{i=1}^{N_d} \left(\frac{i}{N_d}-\frac{A(i)}{A(N_d)}\right) \tag{13}
+A(i) = \sum^i_{j=1}a^{(d)}_j \qquad \text{Gini}_d=\frac{2}{N_d}\sum_{i=1}^{N_d} \left(\frac{i}{N_d}-\frac{A(i)}{A(N_d)}\right)
 $$
 
 The Gini coefficient is based on the Lorenz curve and indicates code-usage fairness. For the screen sweep, we compare the worst $\text{Gini}_d$ (i.e., its upper bound) over codebooks:
 
 $$
-\text{Gini} = \max_d \text{Gini}_d. \tag{14}
+\text{Gini} = \max_d \text{Gini}_d.
 $$
 
 ### 3.4 Generative Recommendation
