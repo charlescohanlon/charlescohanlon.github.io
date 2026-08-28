@@ -1,7 +1,10 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+  --color-page: #ffffff;
   --color-accent: #52adc8;
   --color-accent-hover: #2f7f93;
   --color-ink: #494e52;
@@ -17,6 +20,17 @@
   --font-caption: Georgia, Times, serif;
 }
 
+.dark {
+  --color-page: #1c1e22;
+  --color-accent-hover: #7cc4d8;
+  --color-ink: #c9cdd1;
+  --color-heading: #e3e5e8;
+  --color-muted: #9aa1a7;
+  --color-rule: #33373d;
+  --color-masthead-link: #c9cdd1;
+  --color-footer-bg: #202329;
+}
+
 @layer base {
   html {
     @apply font-sans text-ink antialiased;
@@ -25,7 +39,7 @@
   }
 
   body {
-    @apply bg-white;
+    @apply bg-page;
     line-height: 1.5;
   }
 
@@ -67,6 +81,24 @@
   }
 }
 
+/* Route prose colors through the theme variables so they follow dark mode */
+.prose {
+  --tw-prose-body: var(--color-ink);
+  --tw-prose-headings: var(--color-heading);
+  --tw-prose-lead: var(--color-ink);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-bold: var(--color-heading);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-muted);
+  --tw-prose-hr: var(--color-rule);
+  --tw-prose-quotes: var(--color-ink);
+  --tw-prose-quote-borders: var(--color-rule);
+  --tw-prose-captions: var(--color-muted);
+  --tw-prose-code: var(--color-heading);
+  --tw-prose-th-borders: var(--color-rule);
+  --tw-prose-td-borders: var(--color-rule);
+}
+
 .page__title {
   font-size: 1.953em;
   font-weight: 700;
@@ -92,6 +124,13 @@
 .author-bio {
   font-style: italic;
   color: var(--color-muted);
+}
+
+/* Shiki dual themes: activate the dark variant under .dark */
+.dark .astro-code,
+.dark .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
 }
 
 /* KaTeX: Tailwind's reset overrides the visually-hidden MathML fallback */

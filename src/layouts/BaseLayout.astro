@@ -39,6 +39,15 @@ const pageTitle = title ? `${title} · ${site.title}` : site.title;
       href={new URL("rss.xml", Astro.site)}
     />
     <title>{pageTitle}</title>
+    <script is:inline>
+      // Set theme before first paint to avoid a flash of the wrong mode
+      const theme =
+        localStorage.getItem("theme") ??
+        (matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light");
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    </script>
   </head>
   <body>
     <Header />
