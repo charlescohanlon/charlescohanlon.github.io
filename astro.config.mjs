@@ -10,6 +10,10 @@ import rehypeSidenotes from "./src/plugins/rehype-sidenotes.mjs";
 // https://astro.build/config
 export default defineConfig({
   site: "https://charlescohanlon.com",
+  redirects: {
+    "/portfolio": "/research",
+    "/publications": "/research",
+  },
   integrations: [mdx(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

@@ -2,12 +2,12 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCollection, getEntry, render } from "astro:content";
 
-const page = await getEntry("pages", "portfolio");
-if (!page) throw new Error("Missing content/pages/portfolio.md");
+const page = await getEntry("pages", "research");
+if (!page) throw new Error("Missing content/pages/research.md");
 const { Content } = await render(page);
 const hasIntro = !!page.body?.trim();
 
-const projects = (await getCollection("portfolio")).sort((a, b) => {
+const projects = (await getCollection("research")).sort((a, b) => {
   const aTime = a.data.date?.valueOf() ?? 0;
   const bTime = b.data.date?.valueOf() ?? 0;
   return bTime - aTime;
@@ -30,7 +30,7 @@ const projects = (await getCollection("portfolio")).sort((a, b) => {
   {
     projects.length === 0 ? (
       <p class="text-sm text-muted">
-        No projects yet. Add Markdown files in <code>content/portfolio/</code>.
+        No projects yet. Add Markdown files in <code>content/research/</code>.
       </p>
     ) : (
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -47,6 +47,30 @@ const projects = (await getCollection("portfolio")).sort((a, b) => {
             <p class="text-sm text-muted mt-1 flex-1">
               {p.data.description}
             </p>
+            {p.data.presentations.length > 0 && (
+              <ul class="mt-3 space-y-1">
+                {p.data.presentations.map((pres) => (
+                  <li class="text-sm text-muted" title={pres.title}>
+                    {pres.type && (
+                      <span class="mr-1.5 align-middle inline-block text-[10px] uppercase tracking-wide font-semibold border border-rule rounded px-1.5 py-0.5">
+                        {pres.type}
+                      </span>
+                    )}
+                    <span class="italic">{pres.venue}</span>, {pres.year}
+                    {pres.pdf && (
+                      <a
+                        href={pres.pdf}
+                        target="_blank"
+                        rel="noopener"
+                        class="ml-2"
+                      >
+                        [PDF]
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
             <p class="text-sm mt-3 flex gap-3">
               {p.data.link && (
                 <a href={p.data.link} target="_blank" rel="noopener">

@@ -15,24 +15,10 @@ const posts = defineCollection({
   }),
 });
 
-const publications = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./content/publications" }),
-  schema: z.object({
-    title: z.string(),
-    authors: z.array(z.string()),
-    venue: z.string(),
-    type: z.string().optional(), // e.g. "Poster", "Talk", "Paper"
-    year: z.number(),
-    pdf: z.string().url().optional(),
-    code: z.string().url().optional(),
-    project: z.string().url().optional(),
-    bibtex: z.string().optional(),
-    selected: z.boolean().default(false),
-  }),
-});
-
-const portfolio = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./content/portfolio" }),
+// Research projects. Each entry may list where the work was presented
+// (posters, talks, papers) under `presentations`.
+const research = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./content/research" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -40,6 +26,18 @@ const portfolio = defineCollection({
     image: z.string().optional(),
     link: z.string().url().optional(),
     code: z.string().url().optional(),
+    presentations: z
+      .array(
+        z.object({
+          title: z.string().optional(),
+          authors: z.array(z.string()).optional(),
+          venue: z.string(),
+          type: z.string().optional(), // e.g. "Poster", "Talk", "Paper"
+          year: z.number(),
+          pdf: z.string().url().optional(),
+        })
+      )
+      .default([]),
   }),
 });
 
@@ -52,8 +50,8 @@ const news = defineCollection({
   }),
 });
 
-// Prose pages: the body is written in Markdown. For list pages (publications,
-// portfolio, blog) the body is an optional intro shown above the list.
+// Prose pages: the body is written in Markdown. For list pages (research,
+// blog) the body is an optional intro shown above the list.
 const pages = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./content/pages" }),
   schema: z.object({
@@ -93,8 +91,7 @@ const settings = defineCollection({
 
 export const collections = {
   posts,
-  publications,
-  portfolio,
+  research,
   news,
   pages,
   settings,
