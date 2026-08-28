@@ -35,16 +35,16 @@ where the latent anchor, positive, and negative items are denoted $\boldsymbol{z
 Semantic IDs (SIDs) are discrete codes that identify an element of the input space. Concretely, "codes" are indices along the codebook-size dimension of the codebook. Let $C$ be the codebook size (i.e., the number of vectors in the codebook), and $N$ be the SID's latent dimension size; then each codebook is a $C \times N$ matrix over the real field. The vector-quantized variational autoencoder ([VQ-VAE](https://arxiv.org/abs/1711.00937)) maps a given element in the input space to a single code. The modern residual quantization variational autoencoder ([RQ-VAE](https://arxiv.org/abs/2203.01941)) uses a tuple of $D$ codes, stacking $D$ codebooks. It forms the SID tuple by taking an index from each layer. Quantization begins from the latent embedding itself, $\boldsymbol{r}_0 = \boldsymbol{z}$, then each codebook recursively quantizes the residual remaining from the one above it according to
 
 $$
-k_d = \mathrm{quantizer}(\boldsymbol{r}_{d-1}), \quad \boldsymbol{r}_d = \boldsymbol{r}_{d-1} - \boldsymbol{e}^{(d)}_{k_d}, \qquad d = 1, \dots, D
+k_d = \mathrm{quantizer}(\boldsymbol{r}_d), \quad \boldsymbol{r}_{d+1} = \boldsymbol{r}_d - \boldsymbol{e}^{(d)}_{k_d}, \qquad d = 0, \dots, D-1
 $$
 
-where $\boldsymbol{r}_d$ is the residual remaining at depth $d$, $k_d$ is the code selected from the $d$-th codebook, and $\boldsymbol{e}^{(d)}_{k_d}$ is the corresponding latent vector in that codebook. Concretely, the lookup is nearest-neighbor within the codebook:
+where $\boldsymbol{r}_d$ is the residual entering depth $d$, $k_d$ is the code selected from the $d$-th codebook, and $\boldsymbol{e}^{(d)}_{k_d}$ is the corresponding latent vector in that codebook. Concretely, the lookup is nearest-neighbor within the codebook:
 
 $$
-k_d = \arg\min_{k \in \{1,\dots,C\}} \big\lVert \boldsymbol{r}_{d-1} - \boldsymbol{e}^{(d)}_{k} \big\rVert_2.
+k_d = \arg\min_{k \in \{0,\dots,C-1\}} \big\lVert \boldsymbol{r}_d - \boldsymbol{e}^{(d)}_{k} \big\rVert_2.
 $$
 
-Stacking codebooks like this increases representational capacity exponentially, while memory footprint remains linear. SIDs can be either unique to a corpus element or non-unique by design. [TIGER](https://arxiv.org/abs/2305.05065) appends an additional unique identifier code to all SIDs that collide. [PLUM](https://arxiv.org/abs/2510.07784) argues that SID collision is a feature, not a bug. Latent code vectors group embeddings into clusters. Codebooks achieve optimal uniformity in code utilization when the latent code vectors are the embedding's equal-size cluster centroids ([GRID](https://arxiv.org/abs/2507.22224)). SIDs are thought of as semantically coarse-to-fine as depth increases. The $d=1$ level is the most general, while later depths model increasingly fine details.
+Stacking codebooks like this increases representational capacity exponentially, while memory footprint remains linear. SIDs can be either unique to a corpus element or non-unique by design. [TIGER](https://arxiv.org/abs/2305.05065) appends an additional unique identifier code to all SIDs that collide. [PLUM](https://arxiv.org/abs/2510.07784) argues that SID collision is a feature, not a bug. Latent code vectors group embeddings into clusters. Codebooks achieve optimal uniformity in code utilization when the latent code vectors are the embedding's equal-size cluster centroids ([GRID](https://arxiv.org/abs/2507.22224)). SIDs are thought of as semantically coarse-to-fine as depth increases. The $d=0$ level is the most general, while later depths model increasingly fine details.
 
 ![[assets/RQ-VAE_explanation.png]]
 **Figure 1.** Residual quantization: each level's codebook quantizes the residual left by the one above. Each level's selected indices form the discrete SID tuple—courtesy of [TIGER](https://arxiv.org/abs/2305.05065).
@@ -128,16 +128,16 @@ $$
 Gradient codebook updates are computed with respect to the reconstruction term, which measures how well the decoding FFN $g(\cdot)$ recovers the embedding $\boldsymbol{x}$ from the latent code $\hat{\boldsymbol{z}}$,
 
 $$
-\hat{\boldsymbol{z}} = \sum^D_{d=1} \boldsymbol{e}^{(d)}_{k_d}, \qquad \mathcal{L}_{\text{recon}} = \big\lVert \boldsymbol{x} - g(\hat{\boldsymbol{z}})\big\rVert_2^2,
+\hat{\boldsymbol{z}} = \sum^{D-1}_{d=0} \boldsymbol{e}^{(d)}_{k_d}, \qquad \mathcal{L}_{\text{recon}} = \big\lVert \boldsymbol{x} - g(\hat{\boldsymbol{z}})\big\rVert_2^2,
 $$
 
 as well as a codebook loss term that pulls each level's selected code toward the vector it approximates,
 
 $$
-\mathcal{L}^{(d)}_{\text{codebook}} = \big\lVert \mathrm{sg}[\boldsymbol{r}_{d-1}] - \boldsymbol{e}^{(d)}_{k_d} \big\rVert_2^2
+\mathcal{L}^{(d)}_{\text{codebook}} = \big\lVert \mathrm{sg}[\boldsymbol{r}_d] - \boldsymbol{e}^{(d)}_{k_d} \big\rVert_2^2
 $$
 
-where $\mathrm{sg}[\cdot]$ is the stop-gradient operator and $\boldsymbol{r}_{d-1}$ is the residual from the previous level.
+where $\mathrm{sg}[\cdot]$ is the stop-gradient operator and $\boldsymbol{r}_d$ is the residual the level quantizes.
 
 Meanwhile, EMA codebook updating replaces the gradient step on $\mathcal{L}_{\text{codebook}}$ with an online Lloyd's algorithm step. Let $\mathcal{B}^{(d)}_k$ be the set of level-$d$ residuals mapped to code $k$ within the batch. We track two EMAs per code: one of the assigned vector sum, the other the assignment count.
 
@@ -226,10 +226,10 @@ Furthermore, Figure 6 is a whisker plot of the same 12 configurations, ordered b
 ![[assets/p2_config_screen_whisker.png]]
 **Figure 6.** Whisker plot for the screen sweep on the 12 quantizer configurations. Rows show validation Gini upper bound (lower is better) performance mean and min-max range. The plots of the 3 promoted configurations are shown in orange. The gray "plain RQ-VAE" indicates the baseline.
 
-The Voronoi diagram in Figure 7 visualizes the first-level learned codebook. It renders certain taxonomies more densely concentrated as codes than others. Items in these regions appear to require higher granularity to differentiate those that co-occur. Perhaps operations from them have very similar co-occurrence behavior but differ significantly in content. That said, this analysis is largely tongue-in-cheek due to the projection limitations (mentioned in Figure 7's caption) and the general abstractness of learned semantic embeddings.
+The Voronoi diagram in Figure 7 visualizes the level-0 learned codebook. It renders certain taxonomies more densely concentrated as codes than others. Items in these regions appear to require higher granularity to differentiate those that co-occur. Perhaps operations from them have very similar co-occurrence behavior but differ significantly in content. That said, this analysis is largely tongue-in-cheek due to the projection limitations (mentioned in Figure 7's caption) and the general abstractness of learned semantic embeddings.
 
 ![[assets/codebook_ops_gr_voronoi_levels.png]]
-**Figure 7.** The learned level-1 codebook as a Voronoi tessellation of the quantizer's latent space, PCA-projected to two dimensions. Crosses are codeword centroids. Dots are validation operations. The taxonomy labels indicate the mode taxonomy of nearby operations. Right: one cell magnified and sub-partitioned by the level-2 codebook. Dots sharing a level-2 code are scaled by the square root of their count, and would partition further under the third-level codebook. Dots landing outside their cell are projection error: $31\%$ of the magnified cell's operations sit outside it in 2-D but are truly nearest in 64-D. The first two principal components capture only $42.4\%$ of variance (eight reach $99\%$).
+**Figure 7.** The learned level-0 codebook as a Voronoi tessellation of the quantizer's latent space, PCA-projected to two dimensions. Crosses are codeword centroids. Dots are validation operations. The taxonomy labels indicate the mode taxonomy of nearby operations. Right: one cell magnified and sub-partitioned by the level-1 codebook. Dots sharing a level-1 code are scaled by the square root of their count, and would partition further under the level-2 codebook. Dots landing outside their cell are projection error: $31\%$ of the magnified cell's operations sit outside it in 2-D but are truly nearest in 64-D. The first two principal components capture only $42.4\%$ of variance (eight reach $99\%$).
 
 ### 4.3 Generative Recommendation
 Table 4 shows the results of the top-3 quantizer configurations promoted to full GR model training and evaluation. ZCA whitening came out slightly ahead of regular standardization when supported by EMA codebook updates and rotation-trick gradient propagation; however, the improvement is within noise. That said, choosing rotation trick estimation over STE with EMA codebook updates and ZCA whitening produces a meaningful improvement. Downstream recommendation performance may be robust to feature cross-correlation (ZCA decorrelates, standardization does not) under EMA updates, which is somewhat intuitive, but substantiating this claim requires broader investigation.
