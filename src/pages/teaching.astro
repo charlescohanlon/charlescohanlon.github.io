@@ -1,33 +1,18 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getEntry, render } from "astro:content";
+
+const page = await getEntry("pages", "teaching");
+if (!page) throw new Error("Missing content/pages/teaching.md");
+const { Content } = await render(page);
 ---
 
-<BaseLayout title="Teaching">
+<BaseLayout title={page.data.title} description={page.data.description}>
   <header class="page__title-wrap mb-6">
-    <h1 class="page__title m-0">Teaching</h1>
+    <h1 class="page__title m-0">{page.data.title}</h1>
   </header>
 
   <div class="prose prose-sm max-w-none">
-    <h2>Teaching Assistant - CSC 480: Artificial Intelligence</h2>
-    <p class="text-sm text-muted">
-      Cal Poly San Luis Obispo, Sep 2025 – Dec 2025
-    </p>
-    <p>
-      Led weekly labs and office hours for 50+ students in upper-division
-      Introduction to AI covering heuristic search, constraint satisfaction,
-      knowledge representation, and machine learning. Evaluated student
-      implementations of search algorithms, game-playing agents, and ML models.
-    </p>
-
-    <h2>Curriculum Design Contributor - CSU AI Educational Innovations Challenge</h2>
-    <p class="text-sm text-muted">
-      Cal Poly San Luis Obispo, Aug 2025 – Present
-    </p>
-    <p>
-      Contributed to the CSU AI Educational Innovations Challenge ($3M
-      systemwide initiative). Co-designed an experiential learning framework
-      where students construct and refine autonomous agents integrated with
-      generative AI tools.
-    </p>
+    <Content />
   </div>
 </BaseLayout>

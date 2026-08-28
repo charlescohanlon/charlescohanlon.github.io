@@ -1,19 +1,31 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
+import { postSlug } from "@/lib/posts";
+import { formatDate } from "@/lib/dates";
+
+const page = await getEntry("pages", "blog");
+if (!page) throw new Error("Missing content/pages/blog.md");
+const { Content } = await render(page);
+const hasIntro = !!page.body?.trim();
 
 const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
-
-const formatDate = (d: Date) =>
-  d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 ---
 
-<BaseLayout title="Blog">
+<BaseLayout title={page.data.title} description={page.data.description}>
   <header class="page__title-wrap mb-6">
-    <h1 class="page__title m-0">Blog Posts</h1>
+    <h1 class="page__title m-0">{page.data.title}</h1>
   </header>
+
+  {
+    hasIntro && (
+      <div class="prose prose-sm max-w-none mb-8">
+        <Content />
+      </div>
+    )
+  }
 
   {
     posts.length === 0 ? (
@@ -28,7 +40,7 @@ const formatDate = (d: Date) =>
               {formatDate(post.data.date)}
             </p>
             <h2 class="text-lg font-semibold">
-              <a href={`/blog/${post.id}`}>{post.data.title}</a>
+              <a href={`/blog/${postSlug(post.id)}`}>{post.data.title}</a>
             </h2>
             {post.data.description && (
               <p class="text-sm text-muted mt-1">

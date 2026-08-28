@@ -1,6 +1,11 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
+
+const page = await getEntry("pages", "portfolio");
+if (!page) throw new Error("Missing content/pages/portfolio.md");
+const { Content } = await render(page);
+const hasIntro = !!page.body?.trim();
 
 const projects = (await getCollection("portfolio")).sort((a, b) => {
   const aTime = a.data.date?.valueOf() ?? 0;
@@ -9,15 +14,23 @@ const projects = (await getCollection("portfolio")).sort((a, b) => {
 });
 ---
 
-<BaseLayout title="Portfolio">
+<BaseLayout title={page.data.title} description={page.data.description}>
   <header class="page__title-wrap mb-6">
-    <h1 class="page__title m-0">Portfolio</h1>
+    <h1 class="page__title m-0">{page.data.title}</h1>
   </header>
+
+  {
+    hasIntro && (
+      <div class="prose prose-sm max-w-none mb-8">
+        <Content />
+      </div>
+    )
+  }
 
   {
     projects.length === 0 ? (
       <p class="text-sm text-muted">
-        No projects yet. Add Markdown files in <code>src/content/portfolio/</code>.
+        No projects yet. Add Markdown files in <code>content/portfolio/</code>.
       </p>
     ) : (
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">

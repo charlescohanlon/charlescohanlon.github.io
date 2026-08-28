@@ -1,0 +1,31 @@
+---
+title: "Charles O'Hanlon"
+tagline: "MS CS @ NYU Courant"
+url: "https://charlescohanlon.com"
+author:
+  name: "Charles O'Hanlon"
+  title: "M.S. in Computer Science"
+  affiliation: "NYU, Courant Institute"
+  photo: "/profile.png"
+  email: "cco2087@nyu.edu"
+  location: "New York, NY"
+social:
+  github: "https://github.com/charlescohanlon"
+  googleScholar: ""
+  twitter: "https://x.com/charles_0hanlon"
+  linkedin: "https://linkedin.com/in/charlescohanlon"
+  orcid: ""
+nav:
+  - href: "/"
+    label: "Home"
+  - href: "/publications"
+    label: "Talks & Posters"
+  - href: "/teaching"
+    label: "Teaching"
+  - href: "/portfolio"
+    label: "Portfolio"
+  - href: "/blog"
+    label: "Blog"
+  - href: "/cv"
+    label: "CV"
+---

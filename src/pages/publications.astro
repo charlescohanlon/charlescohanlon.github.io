@@ -1,6 +1,11 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
+
+const page = await getEntry("pages", "publications");
+if (!page) throw new Error("Missing content/pages/publications.md");
+const { Content } = await render(page);
+const hasIntro = !!page.body?.trim();
 
 const pubs = (await getCollection("publications")).sort(
   (a, b) => b.data.year - a.data.year
@@ -16,16 +21,24 @@ const years = Object.keys(byYear)
   .sort((a, b) => b - a);
 ---
 
-<BaseLayout title="Publications">
+<BaseLayout title={page.data.title} description={page.data.description}>
   <header class="page__title-wrap mb-6">
-    <h1 class="page__title m-0">Publications</h1>
+    <h1 class="page__title m-0">{page.data.title}</h1>
   </header>
+
+  {
+    hasIntro && (
+      <div class="prose prose-sm max-w-none mb-8">
+        <Content />
+      </div>
+    )
+  }
 
   {
     years.length === 0 && (
       <p class="text-sm text-muted">
-        No publications yet. Add Markdown files in{" "}
-        <code>src/content/publications/</code> to populate this page.
+        No talks or posters yet. Add Markdown files in{" "}
+        <code>content/publications/</code> to populate this page.
       </p>
     )
   }
@@ -41,6 +54,11 @@ const years = Object.keys(byYear)
             <li>
               <p class="font-medium text-ink">
                 {pub.data.title}
+                {pub.data.type && (
+                  <span class="ml-2 align-middle inline-block text-[10px] uppercase tracking-wide font-semibold text-muted border border-rule rounded px-1.5 py-0.5">
+                    {pub.data.type}
+                  </span>
+                )}
               </p>
               <p class="text-sm text-muted">
                 {pub.data.authors.join(", ")}

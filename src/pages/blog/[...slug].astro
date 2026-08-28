@@ -2,51 +2,56 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
+import { getSettings } from "@/config";
+import { postSlug } from "@/lib/posts";
+import { formatDate } from "@/lib/dates";
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection("posts", ({ data }) => !data.draft);
   return posts.map((post) => ({
-    params: { slug: post.id },
+    params: { slug: postSlug(post.id) },
     props: { post },
   }));
 }) satisfies GetStaticPaths;
 
 const { post } = Astro.props;
 const { Content } = await render(post);
-
-const formatDate = (d: Date) =>
-  d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+const site = await getSettings();
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description} hideSidebar>
-  <article class="max-w-2xl mx-auto">
-    <p class="text-sm text-muted mb-1">
-      {formatDate(post.data.date)}
-      {post.data.updated && (
-        <span>· updated {formatDate(post.data.updated)}</span>
-      )}
-    </p>
-    <h1 class="text-3xl font-bold mb-2">{post.data.title}</h1>
-    {
-      post.data.description && (
-        <p class="text-base text-muted mb-6">
-          {post.data.description}
-        </p>
-      )
-    }
-    {
-      post.data.tags.length > 0 && (
-        <p class="text-xs mb-8 flex flex-wrap gap-2 text-muted">
-          {post.data.tags.map((tag) => (
-            <span class="px-2 py-0.5 rounded-full border border-rule">
-              {tag}
-            </span>
-          ))}
-        </p>
-      )
-    }
+  <article class="post max-w-2xl mx-auto">
+    <header class="post__header mb-10">
+      <h1 class="text-3xl font-bold mt-0 mb-3">{post.data.title}</h1>
+      {
+        post.data.description && (
+          <p class="post__subtitle text-base text-muted mb-4">
+            {post.data.description}
+          </p>
+        )
+      }
+      <p class="text-sm text-muted">
+        <span class="text-ink font-medium">{site.author.name}</span>
+        <span aria-hidden="true"> · </span>
+        {formatDate(post.data.date, "long")}
+        {post.data.updated && (
+          <span> · updated {formatDate(post.data.updated, "long")}</span>
+        )}
+      </p>
+      {
+        post.data.tags.length > 0 && (
+          <p class="text-xs mt-3 flex flex-wrap gap-2 text-muted">
+            {post.data.tags.map((tag) => (
+              <span class="px-2 py-0.5 rounded-full border border-rule">
+                {tag}
+              </span>
+            ))}
+          </p>
+        )
+      }
+    </header>
 
-    <div class="prose prose-sm sm:prose-base max-w-none">
+    <div class="post__body prose prose-sm sm:prose-base max-w-none">
       <Content />
     </div>
 
@@ -55,3 +60,66 @@ const formatDate = (d: Date) =>
     </p>
   </article>
 </BaseLayout>
+
+<style is:global>
+  .post__header {
+    border-bottom: 1px solid var(--color-rule);
+    padding-bottom: 1.5rem;
+  }
+
+  .post__subtitle {
+    font-family: var(--font-caption);
+    font-style: italic;
+  }
+
+  /* Figures: the remark plugin wraps image-led paragraphs in
+     <figure><img><figcaption>. Captions open with a bold
+     "Figure N." / "Table N." label. */
+  .post__body figure {
+    margin: 2.25rem 0 2.5rem;
+  }
+  .post__body figure img {
+    margin: 0 auto;
+  }
+  .post__body figcaption {
+    display: block;
+    font-family: var(--font-caption);
+    font-weight: 400;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+    margin: 0.75rem auto 0;
+    max-width: 40rem;
+  }
+  .post__body figcaption strong {
+    color: var(--color-ink);
+  }
+
+  /* Display math: keep wide equations scrollable instead of overflowing. */
+  .post__body .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.25rem 0;
+  }
+
+  /* Reference entries ("[N] Author. ...") in smaller, tighter type.
+     The :not() guard stops the styling at the Citation section, since ~
+     matches every following sibling, not just entries under References. */
+  .post__body #references ~ p:not(#citation ~ p) {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    margin: 0.625rem 0;
+  }
+
+  /* Footnotes render as an appendix: small type above a rule. */
+  .post__body section.footnotes {
+    margin-top: 3rem;
+    border-top: 1px solid var(--color-rule);
+    padding-top: 1rem;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .post__body section.footnotes p {
+    margin: 0.25rem 0;
+  }
+</style>

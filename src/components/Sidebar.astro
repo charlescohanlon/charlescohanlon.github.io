@@ -1,6 +1,6 @@
 ---
-import { site } from "@/config";
-const { author, social } = site;
+import { getSettings } from "@/config";
+const { author, social } = await getSettings();
 ---
 
 <aside class="md:sticky md:top-8 self-start author-profile">

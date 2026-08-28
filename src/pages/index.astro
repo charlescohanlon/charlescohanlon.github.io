@@ -1,72 +1,50 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
-import { site } from "@/config";
+import { getCollection, getEntry, render } from "astro:content";
+import { formatDate } from "@/lib/dates";
+
+const about = await getEntry("pages", "about");
+if (!about) throw new Error("Missing content/pages/about.md");
+const { Content } = await render(about);
 
 const news = (await getCollection("news"))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 5);
+  .slice(0, 6);
 
-const formatDate = (d: Date) =>
-  d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+const newsItems = await Promise.all(
+  news.map(async (item) => ({
+    date: item.data.date,
+    Body: (await render(item)).Content,
+  }))
+);
+
 ---
 
-<BaseLayout title="About" description={site.tagline}>
+<BaseLayout title={about.data.title} description={about.data.description}>
   <article>
     <header class="page__title-wrap mb-6">
-      <h1 class="page__title m-0">About me</h1>
+      <h1 class="page__title m-0">{about.data.title}</h1>
     </header>
 
     <div class="prose prose-sm max-w-none">
-      <p>
-        I am an incoming M.S. student in Computer Science at
-        <a href="https://cs.nyu.edu/">NYU's Courant Institute</a>,
-        starting Fall 2026. I received my B.S. in Computer
-        Science with a minor in Mathematics from Cal Poly San Luis Obispo.
-      </p>
-
-      <p>
-        My research interests center on <strong>inductive biases for efficient
-        multimodal learning</strong>, <strong>world models and learned
-        representations for planning and control</strong>, and
-        <strong>semantic-space prediction</strong> (JEPA-family architectures)
-        as an alternative to text-centric scaling. I'm broadly interested in
-        how hierarchical structure emerges in learned representations and how
-        it can be leveraged for sample-efficient reasoning.
-      </p>
-
-      <p>
-        Previously, I was a Senior Research Assistant at
-        <strong>Argonne National Laboratory</strong> (UChicago/DOE), where I
-        studied Kolmogorov-Arnold Networks as architectural priors for implicit
-        neural representations of scientific volumes. I also worked on
-        action segmentation from monocular video in the <strong>Ventura
-        Lab</strong> (funded by the National Cancer Institute) and built
-        multimodal location predictors for missing person cases in the
-        <strong>AI for Search &amp; Rescue Lab</strong>. In industry, I
-        interned at <strong>LandingAI</strong> (founded by Andrew Ng), where I
-        worked on VLM fine-tuning, attention diagnostics, and large-scale data
-        distillation pipelines.
-      </p>
+      <Content />
     </div>
 
     {
-      news.length > 0 && (
+      newsItems.length > 0 && (
         <section class="mt-10">
           <h2 class="text-xl font-bold mb-3 pb-2 border-b border-rule">
             News
           </h2>
           <ul class="text-sm space-y-2 not-prose">
-            {news.map((item) => (
+            {newsItems.map(({ date, Body }) => (
               <li class="flex gap-3">
                 <span class="text-muted whitespace-nowrap w-24 shrink-0">
-                  {formatDate(item.data.date)}
+                  {formatDate(date)}
                 </span>
-                <span set:html={item.data.text} />
+                <div class="[&>p]:m-0">
+                  <Body />
+                </div>
               </li>
             ))}
           </ul>

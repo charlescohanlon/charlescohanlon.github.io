@@ -1,5 +1,6 @@
 ---
-import { site } from "@/config";
+import { getSettings } from "@/config";
+const site = await getSettings();
 const { social } = site;
 const year = new Date().getFullYear();
 ---
