@@ -68,5 +68,17 @@ const pageTitle = title ? `${title} · ${site.title}` : site.title;
       }
     </div>
     <Footer />
+    {
+      /* At the end of body so the third-party connection setup doesn't
+         contend with render-critical fetches during head parsing. */
+      import.meta.env.PROD && site.goatcounter && (
+        <script
+          is:inline
+          data-goatcounter={site.goatcounter}
+          async
+          src="//gc.zgo.at/count.js"
+        />
+      )
+    }
   </body>
 </html>

@@ -67,6 +67,9 @@ const settings = defineCollection({
     title: z.string(),
     tagline: z.string(),
     url: z.string().url(),
+    // GoatCounter endpoint ("https://<code>.goatcounter.com/count");
+    // omit to disable analytics
+    goatcounter: z.string().url().optional(),
     author: z.object({
       name: z.string(),
       title: z.string().optional(),

@@ -2,6 +2,7 @@
 title: "Charles O'Hanlon"
 tagline: "MS CS @ NYU Courant"
 url: "https://charlescohanlon.com"
+goatcounter: "https://charlescohanlon.goatcounter.com/count"
 author:
   name: "Charles O'Hanlon"
   title: "M.S. in Computer Science"
