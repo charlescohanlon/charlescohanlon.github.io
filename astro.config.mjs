@@ -20,6 +20,11 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
+    remarkRehype: {
+      // U+FE0E pins the arrow to text presentation — a bare U+21A9
+      // renders as an emoji on iOS.
+      footnoteBackContent: "↩︎",
+    },
     remarkPlugins: [remarkObsidianImages, remarkMath],
     rehypePlugins: [rehypeKatex, rehypeGlueMathPunctuation, rehypeSidenotes],
     shikiConfig: {
