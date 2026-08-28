@@ -1,0 +1,195 @@
+---
+/**
+ * Click-to-enlarge for images inside a `.lightbox-source` container (the host
+ * page opts in by adding that class). Clicking an image opens it at full size
+ * in a modal dialog over the content. Fine pointers get a hover ring and a
+ * zoom-in cursor; touch screens get a persistent magnifier badge, a close
+ * button, and tap-to-toggle between fit and actual size.
+ */
+---
+
+<dialog class="lightbox" aria-label="Enlarged image">
+  <button class="lightbox__close" type="button" aria-label="Close">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg
+    >
+  </button>
+  <figure class="lightbox__figure">
+    <img class="lightbox__img" alt="" decoding="async" />
+    <figcaption class="lightbox__caption"></figcaption>
+  </figure>
+</dialog>
+
+<style is:global>
+  .lightbox-source img {
+    cursor: zoom-in;
+  }
+  @media (pointer: fine) {
+    .lightbox-source img {
+      transition: outline-color 0.15s ease-in-out;
+      outline: 2px solid transparent;
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+    .lightbox-source img:hover {
+      outline-color: var(--color-accent);
+    }
+  }
+  /* Touch screens can't hover, so zoomable images carry a persistent
+     magnifier badge instead. It anchors to the figure's corner on the
+     image's side of the caption. */
+  @media (pointer: coarse) {
+    .lightbox-source figure {
+      position: relative;
+    }
+    .lightbox-source figure::after {
+      content: "";
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      background: rgb(0 0 0 / 0.55)
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3Cpath d='M11 8v6M8 11h6'/%3E%3C/svg%3E")
+        center / 0.875rem no-repeat;
+      pointer-events: none;
+    }
+    /* Caption-above figures (tables): the image sits at the bottom */
+    .lightbox-source .figure--caption-first::after {
+      top: auto;
+      bottom: 0.5rem;
+    }
+  }
+
+  /* The dialog's top layer doesn't stop the page behind from scrolling. */
+  body:has(.lightbox[open]) {
+    overflow: hidden;
+  }
+  .lightbox {
+    /* Tailwind's preflight zeroes margins, undoing the UA centering */
+    margin: auto;
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-out;
+  }
+  .lightbox::backdrop {
+    background: rgb(0 0 0 / 0.8);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .lightbox[open] {
+      animation: lightbox-in 0.15s ease-out;
+    }
+  }
+  @keyframes lightbox-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+  .lightbox__figure {
+    margin: 0;
+  }
+  .lightbox__img {
+    display: block;
+    max-width: 92vw;
+    max-height: 88vh;
+    width: auto;
+    height: auto;
+    filter: var(--baked-image-filter);
+  }
+  /* The --caption-* tokens keep this visually identical to the in-post
+     figcaption this DOM is copied from. */
+  .lightbox__caption {
+    font-family: var(--font-caption);
+    font-size: var(--caption-font-size);
+    line-height: var(--caption-line-height);
+    margin-top: 0.6rem;
+    max-width: 92vw;
+    text-align: center;
+    color: rgb(255 255 255 / 0.85);
+  }
+  .lightbox__caption:empty {
+    display: none;
+  }
+  .lightbox__caption a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  /* Touch screens: no Esc key, so offer a visible close button; and since
+     fit-to-screen barely magnifies on a phone, tapping the enlarged image
+     toggles it to actual size, panned by native scrolling. */
+  .lightbox__close {
+    display: none;
+  }
+  @media (pointer: coarse) {
+    .lightbox[open] {
+      display: grid;
+      place-items: safe center;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: auto;
+    }
+    .lightbox__close {
+      display: grid;
+      place-items: center;
+      position: fixed;
+      top: calc(0.75rem + env(safe-area-inset-top));
+      right: calc(0.75rem + env(safe-area-inset-right));
+      width: 2.25rem;
+      height: 2.25rem;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: rgb(0 0 0 / 0.55);
+      color: #fff;
+    }
+    .lightbox--zoomed .lightbox__img {
+      max-width: none;
+      max-height: none;
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>(".lightbox")!;
+  const img = dialog.querySelector<HTMLImageElement>(".lightbox__img")!;
+  const caption = dialog.querySelector<HTMLElement>(".lightbox__caption")!;
+
+  document.querySelector(".lightbox-source")?.addEventListener("click", (e) => {
+    const target = e.target;
+    if (!(target instanceof HTMLImageElement) || target.closest("a")) return;
+    img.src = target.currentSrc || target.src;
+    img.alt = target.alt;
+    const fc = target.closest("figure")?.querySelector("figcaption");
+    if (fc) caption.replaceChildren(...fc.cloneNode(true).childNodes);
+    else caption.replaceChildren();
+    dialog.classList.remove("lightbox--zoomed");
+    dialog.showModal();
+  });
+
+  dialog.addEventListener("click", (e) => {
+    // Let caption links navigate.
+    if (e.target instanceof Element && e.target.closest("a")) return;
+    // On touch screens, tapping the image toggles fit / actual size;
+    // everywhere else (and any click on a fine pointer) dismisses.
+    if (e.target === img && matchMedia("(pointer: coarse)").matches) {
+      dialog.classList.toggle("lightbox--zoomed");
+      dialog.scrollTo(0, 0);
+      return;
+    }
+    dialog.close();
+  });
+</script>

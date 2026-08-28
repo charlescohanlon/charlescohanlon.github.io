@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import TableOfContents from "@/components/TableOfContents.astro";
+import ImageLightbox from "@/components/ImageLightbox.astro";
 import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import { getSettings } from "@/config";
@@ -58,7 +59,7 @@ const site = await getSettings();
         }
       </header>
 
-      <div class="post__body prose prose-sm sm:prose-base max-w-none">
+      <div class="post__body lightbox-source prose prose-sm sm:prose-base max-w-none">
         <Content />
       </div>
 
@@ -67,6 +68,7 @@ const site = await getSettings();
       </p>
     </article>
   </div>
+  <ImageLightbox />
 </BaseLayout>
 
 <style is:global>
@@ -85,27 +87,37 @@ const site = await getSettings();
     font-style: italic;
   }
 
-  /* Figures: the remark plugin wraps image-led paragraphs in
-     <figure><img><figcaption>. Captions open with a bold
-     "Figure N." / "Table N." label. */
+  /* Figures: the remark plugin wraps image paragraphs in <figure> with a
+     <figcaption>. Captions open with a bold "Figure N." / "Table N." label
+     and sit after the image (figures) or before it (tables). */
   .post__body figure {
     margin: 2.25rem 0 2.5rem;
   }
   .post__body figure img {
     margin: 0 auto;
   }
+  /* Post images are baked on white; flipped in dark mode (see global.css). */
+  .post__body img {
+    filter: var(--baked-image-filter);
+  }
+  /* The --caption-* tokens are shared with the lightbox's enlarged-view
+     caption, which copies this DOM and must stay visually identical to it. */
   .post__body figcaption {
     display: block;
     font-family: var(--font-caption);
     font-weight: 400;
-    font-size: 0.8125rem;
-    line-height: 1.6;
+    font-size: var(--caption-font-size);
+    line-height: var(--caption-line-height);
     color: var(--color-muted);
     margin: 0.75rem auto 0;
     max-width: 40rem;
   }
   .post__body figcaption strong {
     color: var(--color-ink);
+  }
+  /* Captions above their image (tables): flip the margin */
+  .post__body .figure--caption-first figcaption {
+    margin: 0 auto 0.75rem;
   }
 
   /* Display math: keep wide equations scrollable instead of overflowing. */

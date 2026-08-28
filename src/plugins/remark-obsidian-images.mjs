@@ -21,6 +21,21 @@ function trimLeadingWhitespace(nodes) {
   return out;
 }
 
+// Mirror of trimLeadingWhitespace for the caption-before-image form.
+function trimTrailingWhitespace(nodes) {
+  const out = [...nodes];
+  while (out.length && (out.at(-1).type === "break" || (out.at(-1).type === "text" && !out.at(-1).value.trim()))) {
+    out.pop();
+  }
+  if (out.length && out.at(-1).type === "text") {
+    out[out.length - 1] = { ...out.at(-1), value: out.at(-1).value.replace(/\s+$/, "") };
+  }
+  return out;
+}
+
+// A caption line's opening bold label ("**Table N.**" / "**Figure N.**").
+const CAPTION_LABEL_RE = /^(table|figure)\s/i;
+
 // Obsidian may append an alias/size after the filename (![[img.png|400]]).
 const OBSIDIAN_EMBED_RE =
   /!\[\[([^\]|]+\.(?:png|jpe?g|gif|svg|webp|avif))(?:\|[^\]]*)?\]\]/gi;
@@ -87,16 +102,40 @@ export default function remarkObsidianImages() {
     });
 
     // Second pass: any paragraph that starts with an image becomes a figure,
-    // with the rest of the paragraph (if any) as its caption.
+    // with the rest of the paragraph (if any) as its caption. The reverse
+    // form — a "**Table N.** ..." / "**Figure N.** ..." caption line with the
+    // embed directly under it — becomes a figure with the caption first.
     visit(tree, "paragraph", (node) => {
       const [first, ...rest] = node.children;
-      if (!first || first.type !== "image" || node.data?.hName) return;
+      if (!first || node.data?.hName) return;
 
-      const caption = trimLeadingWhitespace(rest);
-      node.data = { hName: "figure" };
-      node.children = caption.length
-        ? [first, { type: "strong", data: { hName: "figcaption" }, children: caption }]
-        : [first];
+      if (first.type === "image") {
+        const caption = trimLeadingWhitespace(rest);
+        node.data = { hName: "figure" };
+        node.children = caption.length
+          ? [first, { type: "strong", data: { hName: "figcaption" }, children: caption }]
+          : [first];
+        return;
+      }
+
+      const last = node.children.at(-1);
+      if (
+        first.type === "strong" &&
+        last?.type === "image" &&
+        CAPTION_LABEL_RE.test(first.children?.[0]?.value ?? "")
+      ) {
+        const caption = trimTrailingWhitespace(node.children.slice(0, -1));
+        // The class names the variant so consumers (page CSS, the lightbox)
+        // can key on it instead of sniffing the figure's child order.
+        node.data = {
+          hName: "figure",
+          hProperties: { className: ["figure--caption-first"] },
+        };
+        node.children = [
+          { type: "strong", data: { hName: "figcaption" }, children: caption },
+          last,
+        ];
+      }
     });
   };
 }

@@ -18,6 +18,15 @@
     "Helvetica Neue", "Lucida Grande", Arial, sans-serif;
   --font-mono: Monaco, Consolas, "Lucida Console", monospace;
   --font-caption: Georgia, Times, serif;
+  --caption-font-size: 0.8125rem;
+  --caption-line-height: 1.6;
+
+  /* Images baked on a white background (post figures and tables) get flipped
+     under dark mode via this token: invert(0.9) maps white to ~#1a1a1a (a
+     near-match for the dark --color-page, so images blend in instead of
+     sitting in white boxes) and hue-rotate(180deg) restores the original
+     hues. Consumers apply it unconditionally; it is a no-op in light mode. */
+  --baked-image-filter: none;
 }
 
 .dark {
@@ -29,6 +38,7 @@
   --color-rule: #33373d;
   --color-masthead-link: #c9cdd1;
   --color-footer-bg: #202329;
+  --baked-image-filter: invert(0.9) hue-rotate(180deg);
 }
 
 @layer base {
