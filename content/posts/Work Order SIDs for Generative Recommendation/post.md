@@ -232,7 +232,13 @@ More work is needed on OpsVerse GR. We need to investigate and address the sourc
 
 Overall, the study explores modern GR SID techniques on the OpsVerse GR dataset. SIDs bridge complex multimodal engineering documents, a standalone non-language modality, into unimodal, token-based generative modeling more broadly.
 
-[^bounds]: The floor assumes random retrieval: $\frac{k}{n-1}$ with $k=100$, $n=4096$. The ceiling assumes perfect retrieval where every anchor's co-occurrence neighbors are ranked ahead of all non-neighbors: $\mathbb{E}_{a \in \text{anchors}} \left[\min\big(1.0, \frac{k}{\text{degree}_a \times n / \lvert \text{anchors}\rvert}\big) \right]$ where $\text{anchors}$ is the set of anchors in the subsampled validation split (whose cardinality is $<n$ from item-wise subsampling), and $\text{degree}_a$ is the degree corresponding to item $a$ in the validation split co-occurrence subgraph.
+[^bounds]: The floor assumes random retrieval: $\frac{k}{n-1}$ with $k=100$, $n=4096$. The ceiling assumes perfect retrieval, where every anchor's co-occurrence neighbors are ranked ahead of all non-neighbors:
+
+    $$
+    \mathbb{E}_{a \in \mathcal{A}}\left[\min\left(1,\ \frac{k \, \lvert \mathcal{A} \rvert}{n \, \deg_a}\right)\right]
+    $$
+
+    where $\mathcal{A}$ is the set of anchors in the subsampled validation split (whose cardinality is $<n$ from item-wise subsampling) and $\deg_a$ is the degree of item $a$ in the validation split co-occurrence subgraph.
 
 ## References
 
