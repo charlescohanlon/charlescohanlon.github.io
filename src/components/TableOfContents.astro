@@ -1,0 +1,163 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// Normalize depths so posts starting at h2 (or h1) indent the same way,
+// and keep at most three levels for a clean sidebar.
+const minDepth = Math.min(...headings.map((h) => h.depth));
+const items = headings.filter((h) => h.depth - minDepth < 3);
+---
+
+{
+  items.length > 1 && (
+    <nav class="toc hidden xl:block" aria-label="Table of contents">
+      <span class="toc__marker" aria-hidden="true" />
+      <ul>
+        {items.map((h) => (
+          <li class="toc__item" style={`--toc-level: ${h.depth - minDepth}`}>
+            <a href={`#${h.slug}`}>{h.text}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    position: sticky;
+    top: 3rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    scrollbar-width: none;
+    justify-self: end;
+    /* 12rem of text (matching the sidenote width) + the marker gutter */
+    width: 13rem;
+    padding-left: 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .toc::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toc ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc__item {
+    margin-bottom: 0.7rem;
+    padding-left: calc(var(--toc-level) * 0.75rem);
+  }
+
+  .toc a {
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+  }
+
+  .toc a:hover {
+    color: var(--color-heading);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .toc a.is-active {
+    color: var(--color-heading);
+  }
+
+  /* A small dot that glides to the active section */
+  .toc__marker {
+    position: absolute;
+    top: 0;
+    left: 0.25rem;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-heading);
+    opacity: 0;
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.15s ease-in-out;
+  }
+</style>
+
+<script>
+  const toc = document.querySelector<HTMLElement>(".toc");
+  const marker = toc?.querySelector<HTMLElement>(".toc__marker");
+
+  if (toc && marker) {
+    const pairs = [...toc.querySelectorAll<HTMLAnchorElement>("a")]
+      .map((link) => ({
+        link,
+        heading: document.getElementById(
+          decodeURIComponent(link.hash.slice(1)),
+        ),
+      }))
+      .filter((p): p is { link: HTMLAnchorElement; heading: HTMLElement } =>
+        Boolean(p.heading),
+      );
+
+    let tops: number[] = [];
+    let lastActive = -1;
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+      if (pairs.length === 0) return;
+
+      // Active section: the last heading above the reading line, or the
+      // final one once the page is scrolled to the bottom.
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+      let active = 0;
+      if (atBottom) {
+        active = pairs.length - 1;
+      } else {
+        for (let i = pairs.length - 1; i >= 0; i--) {
+          if (tops[i] <= window.scrollY + 96) {
+            active = i;
+            break;
+          }
+        }
+      }
+      if (active === lastActive) return;
+
+      pairs[lastActive]?.link.classList.remove("is-active");
+      const link = pairs[active].link;
+      link.classList.add("is-active");
+      marker.style.transform = `translateY(${link.offsetTop + link.offsetHeight / 2 - 2}px)`;
+      marker.style.opacity = "1";
+      lastActive = active;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    // Heading positions shift as images load and on reflow, so remeasure
+    // whenever the page's size changes (this also covers window resizes).
+    const measure = () => {
+      tops = pairs.map((p) => p.heading.getBoundingClientRect().top + window.scrollY);
+      pairs[lastActive]?.link.classList.remove("is-active");
+      lastActive = -1;
+      update();
+    };
+
+    addEventListener("scroll", onScroll, { passive: true });
+    new ResizeObserver(measure).observe(document.body);
+    measure();
+  }
+</script>

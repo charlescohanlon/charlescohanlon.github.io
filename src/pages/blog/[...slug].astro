@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import TableOfContents from "@/components/TableOfContents.astro";
 import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import { getSettings } from "@/config";
@@ -15,53 +16,65 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const site = await getSettings();
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description} hideSidebar>
-  <article class="post max-w-2xl mx-auto">
-    <header class="post__header mb-10">
-      <h1 class="text-3xl font-bold mt-0 mb-3">{post.data.title}</h1>
-      {
-        post.data.description && (
-          <p class="post__subtitle text-base text-muted mb-4">
-            {post.data.description}
-          </p>
-        )
-      }
-      <p class="text-sm text-muted">
-        <span class="text-ink font-medium">{site.author.name}</span>
-        <span aria-hidden="true"> · </span>
-        {formatDate(post.data.date, "long")}
-        {post.data.updated && (
-          <span> · updated {formatDate(post.data.updated, "long")}</span>
-        )}
+  <div class="post-shell">
+    {/* The GFM footnotes section's visually-hidden heading isn't a section
+        of the post (its notes render in the margins here anyway). */}
+    <TableOfContents
+      headings={headings.filter((h) => h.slug !== "footnote-label")}
+    />
+    <article class="post-shell__article max-w-2xl mx-auto">
+      <header class="post__header mb-10">
+        <h1 class="text-3xl font-bold mt-0 mb-3">{post.data.title}</h1>
+        {
+          post.data.description && (
+            <p class="post__subtitle text-base text-muted mb-4">
+              {post.data.description}
+            </p>
+          )
+        }
+        <p class="text-sm text-muted">
+          <span class="text-ink font-medium">{site.author.name}</span>
+          <span aria-hidden="true"> · </span>
+          {formatDate(post.data.date, "long")}
+          {post.data.updated && (
+            <span> · updated {formatDate(post.data.updated, "long")}</span>
+          )}
+        </p>
+        {
+          post.data.tags.length > 0 && (
+            <p class="text-xs mt-3 flex flex-wrap gap-2 text-muted">
+              {post.data.tags.map((tag) => (
+                <span class="px-2 py-0.5 rounded-full border border-rule">
+                  {tag}
+                </span>
+              ))}
+            </p>
+          )
+        }
+      </header>
+
+      <div class="post__body prose prose-sm sm:prose-base max-w-none">
+        <Content />
+      </div>
+
+      <p class="mt-12 text-sm">
+        <a href="/blog">← Back to blog</a>
       </p>
-      {
-        post.data.tags.length > 0 && (
-          <p class="text-xs mt-3 flex flex-wrap gap-2 text-muted">
-            {post.data.tags.map((tag) => (
-              <span class="px-2 py-0.5 rounded-full border border-rule">
-                {tag}
-              </span>
-            ))}
-          </p>
-        )
-      }
-    </header>
-
-    <div class="post__body prose prose-sm sm:prose-base max-w-none">
-      <Content />
-    </div>
-
-    <p class="mt-12 text-sm">
-      <a href="/blog">← Back to blog</a>
-    </p>
-  </article>
+    </article>
+  </div>
 </BaseLayout>
 
 <style is:global>
+  /* Room above a heading when the TOC jumps to it */
+  .post__body :is(h2, h3, h4, h5, h6) {
+    scroll-margin-top: 2rem;
+  }
+
   .post__header {
     border-bottom: 1px solid var(--color-rule);
     padding-bottom: 1.5rem;
@@ -111,7 +124,26 @@ const site = await getSettings();
     margin: 0.625rem 0;
   }
 
-  /* Footnotes render as an appendix: small type above a rule. */
+  /* Footnotes (built by rehype-sidenotes): each reference carries a copy
+     of its note in a .sidenote span, hidden site-wide by default (see
+     global.css), so narrow screens get a conventional footnotes appendix.
+     The wide-layout block below floats the copy into the right margin
+     beside its reference instead. */
+  .post__body .sidenote {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+  .post__body .sidenote::before {
+    content: attr(data-note);
+    position: relative;
+    top: -0.35rem;
+    padding-right: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--color-accent);
+  }
+
+  /* Footnotes appendix: small type above a rule. */
   .post__body section.footnotes {
     margin-top: 3rem;
     border-top: 1px solid var(--color-rule);
@@ -121,5 +153,46 @@ const site = await getSettings();
   }
   .post__body section.footnotes p {
     margin: 0.25rem 0;
+  }
+
+  /* The wide post layout: a centered column with the TOC in the left
+     gutter and footnotes as sidenotes in the right one. 80rem is
+     Tailwind's xl breakpoint — the TOC shows itself with xl:block, so
+     keep this query in sync with it. */
+  @media (min-width: 80rem) {
+    .post-shell {
+      /* --post-column matches the article's max-w-2xl */
+      --post-column: 42rem;
+      --gutter-gap: 2.5rem;
+      --sidenote-width: 12rem;
+      display: grid;
+      grid-template-columns:
+        minmax(0, 1fr) minmax(0, var(--post-column)) minmax(0, 1fr);
+      column-gap: var(--gutter-gap);
+      align-items: start;
+    }
+    .post-shell__article {
+      grid-column: 2;
+      width: 100%;
+    }
+    /* Float into the right margin: the negative right margin cancels the
+       float's footprint so the paragraph text doesn't wrap around it. */
+    .post__body .sidenote {
+      display: block;
+      float: right;
+      clear: right;
+      width: var(--sidenote-width);
+      margin-right: calc(-1 * var(--sidenote-width) - var(--gutter-gap));
+      margin-left: var(--gutter-gap);
+      margin-top: 0.3rem;
+      margin-bottom: 1.25rem;
+    }
+    .post__body section.footnotes {
+      display: none;
+    }
+    /* The number's jump target is hidden here, so don't offer the link */
+    .post__body sup.footnote-ref {
+      pointer-events: none;
+    }
   }
 </style>

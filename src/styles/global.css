@@ -38,6 +38,12 @@
     scrollbar-gutter: stable;
   }
 
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
   body {
     @apply bg-page;
     line-height: 1.5;
@@ -79,6 +85,13 @@
   h4 {
     font-size: 1em;
   }
+}
+
+/* rehype-sidenotes runs on every markdown body, but only the blog post page
+   styles the injected note copies. Hide them anywhere else they may appear;
+   the regular footnotes section still renders there. */
+.sidenote {
+  display: none;
 }
 
 /* Route prose colors through the theme variables so they follow dark mode */

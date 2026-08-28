@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import remarkObsidianImages from "./src/plugins/remark-obsidian-images.mjs";
+import rehypeSidenotes from "./src/plugins/rehype-sidenotes.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,7 +16,7 @@ export default defineConfig({
   },
   markdown: {
     remarkPlugins: [remarkObsidianImages, remarkMath],
-    rehypePlugins: [rehypeKatex],
+    rehypePlugins: [rehypeKatex, rehypeSidenotes],
     shikiConfig: {
       themes: {
         light: "github-light",
