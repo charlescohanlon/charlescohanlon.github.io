@@ -123,6 +123,7 @@ Producing SIDs optimal for GR is challenging. Simplistic methods tend to suffer 
 All quantizer variants are subject to k-means clustering initialization and dead-code restarting. These techniques have shown consistent positive results ([LMIndexer](https://arxiv.org/abs/2310.07815), [GenRet](https://arxiv.org/abs/2304.04171), [TIGER](https://arxiv.org/abs/2305.05065)) and have little downside. K-means initialization involves initializing the quantizer's codebook from a k-means fit of the training set. First, RQ-VAE's FFN projects embeddings into the codebook dimension. For Qwen 3.5 0.8B, that means $1024 \rightarrow 64$. Then, we apply Lloyd's algorithm with $256$ clusters, i.e., as many clusters as there are codebook vectors, then repeat on residuals for all $3$ codebooks. This variation is specifically rk-means ([QARM](https://arxiv.org/abs/2411.11739)). This gives the codebook a stable warm start, removing the need to initialize at random. For dead-code restarts, training maintains an exponential moving average (EMA) of the in-batch cluster size for each code (initialized to $1.0$ with a decay of $0.99$). In-batch cluster size is the count of embeddings that map to the code during quantization. Each code's corresponding EMA buffer updates every training step. When its EMA falls below the threshold $10^{-4}$, we restart the code, sampling a random latent from the step's batch to replace the dead code's latent vector. 
 
 The remaining design heuristics we explore present non-linear interaction effects. We sweep the space,
+
 $$
 \begin{aligned} &\{\text{EMA},\ \text{gradient}\} && \text{codebook update} \\ &\times\ \{\text{STE},\ \text{rotation trick}\} && \text{gradient propagation} \\ &\times\ \{\text{none},\ \text{standardization},\ \text{ZCA}\}. && \text{feature scaling} \end{aligned}
 $$
@@ -142,9 +143,12 @@ $$
 where $\mathrm{sg}[\cdot]$ is the stop-gradient operator and $\boldsymbol{r}_d$ is the residual the level quantizes.
 
 EMA codebook updating replaces the gradient step on $\mathcal{L}_{\text{codebook}}$ with an online Lloyd's algorithm step. Let $\mathcal{B}^{(d)}_k$ be the set of level-$d$ residuals mapped to code $k$ within the batch. We track two EMAs per code: one of the assigned vector sum, the other the assignment count.
+
 $$
 \boldsymbol{m}^{(d)}_{k} \leftarrow \gamma\, \boldsymbol{m}^{(d)}_{k} + (1-\gamma) \sum_{\boldsymbol{r} \in \mathcal{B}^{(d)}_{k}} \boldsymbol{r}, \qquad n^{(d)}_{k} \leftarrow \gamma\, n^{(d)}_{k} + (1-\gamma) \big|\mathcal{B}^{(d)}_{k}\big|,
-$$and update the code to their ratio,
+$$
+
+and update the code to their ratio,
 
 $$
 \boldsymbol{e}^{(d)}_k \leftarrow \frac{\boldsymbol{m}^{(d)}_k}{n^{(d)}_k},
