@@ -7,9 +7,9 @@ const isActive = (href: string) =>
   href === "/" ? pathname === "/" : pathname.startsWith(href);
 ---
 
-<header class="masthead border-b border-rule bg-page">
+<header class="masthead sticky top-0 z-50 border-b border-rule bg-page">
   <div class="max-w-6xl mx-auto px-4 sm:px-6">
-    <div class="flex items-center justify-between h-[70px]">
+    <div class="flex items-center justify-between h-(--masthead-height)">
       <nav class="hidden lg:flex items-center gap-6 text-base">
         {
           nav.map((item) => (

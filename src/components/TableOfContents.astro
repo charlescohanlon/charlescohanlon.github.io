@@ -31,8 +31,9 @@ const items = headings.filter((h) => h.depth - minDepth < 3);
 <style>
   .toc {
     position: sticky;
-    top: 3rem;
-    max-height: calc(100vh - 6rem);
+    /* Rest just below the sticky masthead */
+    top: calc(var(--masthead-height) + 2rem);
+    max-height: calc(100vh - var(--masthead-height) - 4rem);
     overflow-y: auto;
     scrollbar-width: none;
     justify-self: end;

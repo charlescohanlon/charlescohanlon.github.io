@@ -21,6 +21,10 @@
   --caption-font-size: 0.8125rem;
   --caption-line-height: 1.6;
 
+  /* The sticky masthead's height. Everything that must clear the masthead
+     (the sticky TOC's resting offset, heading scroll-margins) reads this. */
+  --masthead-height: 70px;
+
   /* Images baked on a white background (post figures and tables) get flipped
      under dark mode via this token: invert(0.9) maps white to ~#1a1a1a (a
      near-match for the dark --color-page, so images blend in instead of
