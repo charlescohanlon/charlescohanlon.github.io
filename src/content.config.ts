@@ -5,14 +5,20 @@ import { glob } from "astro/loaders";
 // etc.) — only post.md is published, so working files are safe to keep there.
 const posts = defineCollection({
   loader: glob({ pattern: "**/post.{md,mdx}", base: "./content/posts" }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
-    tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
+      tags: z.array(z.string()).default([]),
+      draft: z.boolean().default(false),
+      // Decorative banner above the title, resolved relative to post.md.
+      // A post can instead ship a Hero.astro next to its post.md for an
+      // animated hero (it takes precedence; see blog/[...slug].astro) —
+      // `hero` then serves as the static fallback.
+      hero: image().optional(),
+    }),
 });
 
 // Research projects. Each entry may list where the work was presented

@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import TableOfContents from "@/components/TableOfContents.astro";
 import ImageLightbox from "@/components/ImageLightbox.astro";
+import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import { getSettings } from "@/config";
@@ -19,17 +20,36 @@ export const getStaticPaths = (async () => {
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
 const site = await getSettings();
+
+// A post opts into an animated hero by shipping a `Hero.astro` next to its
+// post.md — everything about that hero (component, generator scripts, the
+// static fallback in assets/) stays in the post's own folder, so each
+// future animated hero is isolated with its post. The content loader only
+// collects post.{md,mdx}, so these components never leak into the
+// collection. Matched by the post's real on-disk folder (from filePath),
+// which both sides share verbatim — no slug round-trip to keep in sync.
+const heroModules = import.meta.glob<{ default: any }>(
+  "../../../content/posts/*/Hero.astro",
+  { eager: true },
+);
+const postFolder = post.filePath?.split("/").at(-2);
+const heroPath = Object.keys(heroModules).find(
+  (p) => p.split("/").at(-2) === postFolder,
+);
+const Hero = heroPath ? heroModules[heroPath].default : null;
+const hasHero = Boolean(Hero || post.data.hero);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description} hideSidebar>
-  <div class="post-shell">
-    {/* The GFM footnotes section's visually-hidden heading isn't a section
-        of the post (its notes render in the margins here anyway). */}
-    <TableOfContents
-      headings={headings.filter((h) => h.slug !== "footnote-label")}
-    />
-    <article class="post-shell__article max-w-2xl mx-auto">
-      <header class="post__header mb-10">
+  {/* Title block, then the hero across the whole content container, then
+      the article column — the hero separates title from abstract, so the
+      header's rule only draws when there is no hero. */}
+  <header
+    class:list={[
+      "post__header max-w-2xl mx-auto",
+      hasHero ? "post__header--with-hero" : "mb-10",
+    ]}
+  >
         <h1 class="text-3xl font-bold mt-0 mb-3">{post.data.title}</h1>
         {
           post.data.description && (
@@ -57,8 +77,43 @@ const site = await getSettings();
             </p>
           )
         }
-      </header>
+  </header>
 
+  {/* An animated Hero.astro takes precedence; the frontmatter image is the
+      static rendering — used directly when there's no component, and as the
+      no-JS fallback when there is. At the ≥80rem breakout the hero is
+      76rem wide (72rem container + 2 * --toc-overhang). */}
+  {Hero && <Hero />}
+  {
+    post.data.hero &&
+      (Hero ? (
+        <noscript>
+          <Image
+            src={post.data.hero}
+            alt=""
+            class="post__hero"
+            widths={[768, 1536, 2400]}
+            sizes="(min-width: 80rem) 76rem, (min-width: 72rem) 72rem, 100vw"
+          />
+        </noscript>
+      ) : (
+        <Image
+          src={post.data.hero}
+          alt=""
+          class="post__hero"
+          widths={[768, 1536, 2400]}
+          sizes="(min-width: 80rem) 76rem, (min-width: 72rem) 72rem, 100vw"
+        />
+      ))
+  }
+
+  <div class="post-shell">
+    {/* The GFM footnotes section's visually-hidden heading isn't a section
+        of the post (its notes render in the margins here anyway). */}
+    <TableOfContents
+      headings={headings.filter((h) => h.slug !== "footnote-label")}
+    />
+    <article class="post-shell__article max-w-2xl mx-auto">
       <div class="post__body lightbox-source prose prose-sm sm:prose-base max-w-none">
         <Content />
       </div>
@@ -72,14 +127,34 @@ const site = await getSettings();
 </BaseLayout>
 
 <style is:global>
-  /* Room above a heading when the TOC jumps to it */
+  /* Room above a heading when the TOC jumps to it — clears the sticky
+     masthead. */
   .post__body :is(h2, h3, h4, h5, h6) {
-    scroll-margin-top: 2rem;
+    scroll-margin-top: calc(var(--masthead-height) + 1.5rem);
   }
 
   .post__header {
     border-bottom: 1px solid var(--color-rule);
     padding-bottom: 1.5rem;
+  }
+
+  /* When a hero follows the title block, the banner is the separator */
+  .post__header--with-hero {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  /* Decorative hero banner between the title block and the abstract,
+     spanning the whole content container. Baked on white like the post
+     figures, so it gets the same dark-mode treatment. Its wide-layout
+     breakout lives in the 80rem block below, with the post-shell grid. */
+  .post__hero {
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-rule);
+    margin: 2rem 0 2.75rem;
+    filter: var(--baked-image-filter);
   }
 
   .post__subtitle {
@@ -182,6 +257,15 @@ const site = await getSettings();
      Tailwind's xl breakpoint — the TOC shows itself with xl:block, so
      keep this query in sync with it. */
   @media (min-width: 80rem) {
+    /* The 13rem TOC overflows its gutter column this far past the
+       container's left edge; the hero breaks out by the same amount on
+       both sides so its left edge lines up with the sticky menu. */
+    .post__hero {
+      --toc-overhang: 2rem;
+      width: calc(100% + 2 * var(--toc-overhang));
+      margin-inline: calc(-1 * var(--toc-overhang));
+    }
+
     .post-shell {
       /* --post-column matches the article's max-w-2xl */
       --post-column: 42rem;

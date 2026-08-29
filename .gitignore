@@ -25,9 +25,11 @@ pnpm-debug.log*
 .claude/settings.local.json
 
 # posts: each folder may hold private working files (notes, research docs);
-# only the published post.md and its assets are ever tracked
+# only the published post.md, its optional Hero.astro (animated hero — see
+# blog/[...slug].astro), and its assets are ever tracked
 content/posts/**
 !content/posts/*/
 !content/posts/*/post.md
+!content/posts/*/Hero.astro
 !content/posts/*/assets/
 !content/posts/*/assets/**
