@@ -120,6 +120,12 @@ const site = await getSettings();
     margin: 0 auto 0.75rem;
   }
 
+  /* KaTeX defaults to 1.21em, which towers over the prose — render math at
+     exactly the surrounding text's size. */
+  .post__body .katex {
+    font-size: 1em;
+  }
+
   /* Display math: keep wide equations scrollable instead of overflowing. */
   .post__body .katex-display {
     overflow-x: auto;
@@ -145,6 +151,10 @@ const site = await getSettings();
     font-size: 0.8125rem;
     line-height: 1.55;
     color: var(--color-muted);
+  }
+  .post__body .sidenote .katex-display,
+  .post__body section.footnotes .katex-display {
+    margin: 0.5em 0;
   }
   .post__body .sidenote::before {
     content: attr(data-note);
