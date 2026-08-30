@@ -4,6 +4,7 @@ import "@/styles/global.css";
 // markdown pipeline); bundling from the package keeps the CSS version in
 // lockstep with the markup and off the render-critical CDN path.
 import "katex/dist/katex.min.css";
+import { ClientRouter } from "astro:transitions";
 import Header from "@/components/Header.astro";
 import Sidebar from "@/components/Sidebar.astro";
 import Footer from "@/components/Footer.astro";
@@ -66,19 +67,31 @@ const imageUrl = image && new URL(image.src, Astro.site);
       href={new URL("rss.xml", Astro.site)}
     />
     <title>{pageTitle}</title>
+    <ClientRouter />
     <script is:inline>
-      // Set theme before first paint to avoid a flash of the wrong mode
-      const theme =
-        localStorage.getItem("theme") ??
-        (matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light");
-      document.documentElement.classList.toggle("dark", theme === "dark");
+      // Set theme before first paint to avoid a flash of the wrong mode.
+      // Client-side navigations swap in a fresh <html> without the class,
+      // so re-apply after each swap (before the new page renders).
+      (() => {
+        const apply = () => {
+          const theme =
+            localStorage.getItem("theme") ??
+            (matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light");
+          document.documentElement.classList.toggle("dark", theme === "dark");
+        };
+        apply();
+        document.addEventListener("astro:after-swap", apply);
+      })();
     </script>
   </head>
-  <body>
+  <body class="min-h-dvh flex flex-col">
     <Header />
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+    {/* flex-1 pushes the footer to at least the viewport bottom, so its
+        position is identical across short pages instead of tracking each
+        page's content height. */}
+    <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12">
       {
         hideSidebar ? (
           <main>
@@ -99,12 +112,24 @@ const imageUrl = image && new URL(image.src, Astro.site);
       /* At the end of body so the third-party connection setup doesn't
          contend with render-critical fetches during head parsing. */
       import.meta.env.PROD && site.goatcounter && (
-        <script
-          is:inline
-          data-goatcounter={site.goatcounter}
-          async
-          src="//gc.zgo.at/count.js"
-        />
+        <>
+          <script
+            is:inline
+            data-goatcounter={site.goatcounter}
+            async
+            src="//gc.zgo.at/count.js"
+          />
+          <script is:inline>
+            // count.js auto-counts the initial load; client-side
+            // navigations don't reload, so count those manually
+            // (astro:after-swap fires only on them, never on load).
+            document.addEventListener("astro:after-swap", () =>
+              window.goatcounter?.count?.({
+                path: location.pathname + location.search,
+              }),
+            );
+          </script>
+        </>
       )
     }
   </body>

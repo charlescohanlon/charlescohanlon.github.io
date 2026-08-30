@@ -323,7 +323,8 @@
     // embedded panes can suppress entirely — so the tick below also
     // re-checks the size (the same reason the ticks come from a worker).
     resize();
-    new ResizeObserver(resize).observe(canvas);
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
 
     // Under prefers-reduced-motion the walk is skipped, but the ticker
     // still runs: its size re-check below is the fallback for exactly the
@@ -334,10 +335,12 @@
     // document is genuinely visible: embedded panes can report "hidden"
     // while displaying the page, and there the observer may never fire.
     let inView = true;
-    if (!reduced)
-      new IntersectionObserver(([entry]) => {
-        inView = entry.isIntersecting;
-      }).observe(canvas);
+    const io = reduced
+      ? null
+      : new IntersectionObserver(([entry]) => {
+          inView = entry.isIntersecting;
+        });
+    io?.observe(canvas);
 
     const t00 = performance.now();
     let nextBurstAt = WALK_EVERY; // one global clock: all walks start together
@@ -380,7 +383,26 @@
     const worker = new Worker(workerUrl);
     URL.revokeObjectURL(workerUrl); // already fetched; don't pin the blob
     worker.onmessage = tick;
+
+    // A client-side navigation swaps the canvas out: release everything
+    // that would otherwise outlive it (the worker ticks forever, and the
+    // observers pin this whole closure).
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        worker.terminate();
+        ro.disconnect();
+        io?.disconnect();
+      },
+      { once: true },
+    );
   }
 
-  document.querySelectorAll<HTMLCanvasElement>("canvas.hero-voronoi").forEach(init);
+  // Init on every page-load (it fires on the initial load too): client-side
+  // navigations swap the canvas in fresh but only run this module once.
+  document.addEventListener("astro:page-load", () =>
+    document
+      .querySelectorAll<HTMLCanvasElement>("canvas.hero-voronoi")
+      .forEach(init),
+  );
 </script>

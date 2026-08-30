@@ -164,32 +164,43 @@
 </style>
 
 <script>
-  const dialog = document.querySelector<HTMLDialogElement>(".lightbox")!;
-  const img = dialog.querySelector<HTMLImageElement>(".lightbox__img")!;
-  const caption = dialog.querySelector<HTMLElement>(".lightbox__caption")!;
+  // Bound per page via astro:page-load: client-side navigations swap in a
+  // fresh dialog + content but only run this module once, and every
+  // listener here lives on swapped elements, so rebinding can't stack.
+  const setup = () => {
+    const dialog = document.querySelector<HTMLDialogElement>(".lightbox");
+    if (!dialog) return;
+    const img = dialog.querySelector<HTMLImageElement>(".lightbox__img")!;
+    const caption = dialog.querySelector<HTMLElement>(".lightbox__caption")!;
 
-  document.querySelector(".lightbox-source")?.addEventListener("click", (e) => {
-    const target = e.target;
-    if (!(target instanceof HTMLImageElement) || target.closest("a")) return;
-    img.src = target.currentSrc || target.src;
-    img.alt = target.alt;
-    const fc = target.closest("figure")?.querySelector("figcaption");
-    if (fc) caption.replaceChildren(...fc.cloneNode(true).childNodes);
-    else caption.replaceChildren();
-    dialog.classList.remove("lightbox--zoomed");
-    dialog.showModal();
-  });
+    document
+      .querySelector(".lightbox-source")
+      ?.addEventListener("click", (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLImageElement) || target.closest("a"))
+          return;
+        img.src = target.currentSrc || target.src;
+        img.alt = target.alt;
+        const fc = target.closest("figure")?.querySelector("figcaption");
+        if (fc) caption.replaceChildren(...fc.cloneNode(true).childNodes);
+        else caption.replaceChildren();
+        dialog.classList.remove("lightbox--zoomed");
+        dialog.showModal();
+      });
 
-  dialog.addEventListener("click", (e) => {
-    // Let caption links navigate.
-    if (e.target instanceof Element && e.target.closest("a")) return;
-    // On touch screens, tapping the image toggles fit / actual size;
-    // everywhere else (and any click on a fine pointer) dismisses.
-    if (e.target === img && matchMedia("(pointer: coarse)").matches) {
-      dialog.classList.toggle("lightbox--zoomed");
-      dialog.scrollTo(0, 0);
-      return;
-    }
-    dialog.close();
-  });
+    dialog.addEventListener("click", (e) => {
+      // Let caption links navigate.
+      if (e.target instanceof Element && e.target.closest("a")) return;
+      // On touch screens, tapping the image toggles fit / actual size;
+      // everywhere else (and any click on a fine pointer) dismisses.
+      if (e.target === img && matchMedia("(pointer: coarse)").matches) {
+        dialog.classList.toggle("lightbox--zoomed");
+        dialog.scrollTo(0, 0);
+        return;
+      }
+      dialog.close();
+    });
+  };
+
+  document.addEventListener("astro:page-load", setup);
 </script>
