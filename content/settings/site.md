@@ -25,6 +25,4 @@ nav:
     label: "Teaching"
   - href: "/blog"
     label: "Blog"
-  - href: "/cv"
-    label: "CV"
 ---
