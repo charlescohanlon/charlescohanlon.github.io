@@ -31,7 +31,12 @@ const {
 } = Astro.props;
 const pageTitle = title ? `${title} · ${site.title}` : site.title;
 // Absolute URLs — link-preview scrapers don't resolve relative ones.
-const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+// build.format "file" leaves ".html" on build-time pathnames; the URLs
+// GitHub Pages serves (and the sitemap advertises) are extensionless.
+const canonicalUrl = new URL(
+  Astro.url.pathname.replace(/(?:\/index)?\.html$/, ""),
+  Astro.site,
+);
 const imageUrl = image && new URL(image.src, Astro.site);
 ---
 

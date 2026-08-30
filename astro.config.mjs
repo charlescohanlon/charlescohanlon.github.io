@@ -11,6 +11,10 @@ import rehypeGlueMathPunctuation from "./src/plugins/rehype-glue-math-punctuatio
 // https://astro.build/config
 export default defineConfig({
   site: "https://charlescohanlon.com",
+  // Flat files (blog.html, not blog/index.html): GitHub Pages serves them
+  // extensionless, so URLs don't carry a trailing slash.
+  trailingSlash: "never",
+  build: { format: "file" },
   redirects: {
     "/portfolio": "/research",
     "/publications": "/research",

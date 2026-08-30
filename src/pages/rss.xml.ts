@@ -14,11 +14,12 @@ export async function GET(context: APIContext) {
     title: site.title,
     description: site.tagline,
     site: context.site ?? site.url,
+    trailingSlash: false,
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.date,
       description: post.data.description ?? "",
-      link: `/blog/${postSlug(post.id)}/`,
+      link: `/blog/${postSlug(post.id)}`,
     })),
   });
 }
