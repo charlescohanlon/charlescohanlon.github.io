@@ -2,9 +2,9 @@
 /**
  * Click-to-enlarge for images inside a `.lightbox-source` container (the host
  * page opts in by adding that class). Clicking an image opens it at full size
- * in a modal dialog over the content. Fine pointers get a hover ring and a
- * zoom-in cursor; touch screens get a persistent magnifier badge, a close
- * button, and tap-to-toggle between fit and actual size.
+ * in a modal dialog over the content. Fine pointers get a zoom-in cursor;
+ * touch screens get a persistent magnifier badge, a close button, and
+ * tap-to-toggle between fit and actual size.
  */
 ---
 
@@ -30,17 +30,6 @@
 <style is:global>
   .lightbox-source img {
     cursor: zoom-in;
-  }
-  @media (pointer: fine) {
-    .lightbox-source img {
-      transition: outline-color 0.15s ease-in-out;
-      outline: 2px solid transparent;
-      outline-offset: 3px;
-      border-radius: 2px;
-    }
-    .lightbox-source img:hover {
-      outline-color: var(--color-accent);
-    }
   }
   /* Touch screens can't hover, so zoomable images carry a persistent
      magnifier badge instead. It anchors to the figure's corner on the
