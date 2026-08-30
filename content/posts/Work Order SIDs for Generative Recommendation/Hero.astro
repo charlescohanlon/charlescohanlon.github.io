@@ -10,12 +10,16 @@
  *
  * The tessellation itself is STATIC. A handful of cells carry a level-1
  * sub-partition (bold outline, shaded subdivision, its own op dots). Every
- * ~30s ALL selections walk at once: a burst of 3-7 contiguous-neighbor
- * hops each, every hop an instantaneous cut with a 1s beat between hops so
- * the walk is legible. A walker never revisits a cell any walk has already
- * occupied until it has no unvisited neighbor left, in which case it
- * re-enters the least-recently-visited one rather than dying. Burst START
- * times stay in lockstep across walkers even though burst lengths differ.
+ * ~15s ALL selections walk at once: a burst of 3-7 hops each, every hop a
+ * step to a cell sharing a visible border (Voronoi neighbors, not Delaunay
+ * — those can differ where the clip box cuts an edge away), every hop an
+ * instantaneous cut with a 1s beat between hops so the walk is legible.
+ * A walker never revisits a cell any walk has already occupied until it
+ * has no unvisited neighbor left, in which case it
+ * re-enters the least-recently-visited one rather than dying. The walks
+ * are SYNCHRONIZED: every walker still in its burst steps on the same
+ * beat, and since burst lengths differ, walkers drop out one by one as
+ * their own lengths exhaust.
  *
  * Under prefers-reduced-motion the walk is off: one static frame.
  */
@@ -47,10 +51,10 @@
   const ASPECT = 3; // logical space is ASPECT x 1
   const N = 150;
   const WALKERS = 5;
-  const WALK_EVERY = 30; // seconds between synchronized walk bursts
+  const WALK_EVERY = 15; // seconds between synchronized walk bursts
   const BURST_MIN = 3; // hops per burst: random in [BURST_MIN, BURST_MAX]
   const BURST_MAX = 7;
-  const HOP_GAP = 1.0; // seconds between the hops of one burst
+  const HOP_GAP = 1.0; // seconds between the beats of one burst
 
   function init(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext("2d");
@@ -89,6 +93,8 @@
         (rand() - 0.5) * 0.09,
         (rand() - 0.5) * 0.06,
       ]);
+      // ops share one style everywhere; built once, not per draw
+      s.dotColor = `hsl(${s.hue} 70% 45% / 0.85)`;
     }
 
     // Static logical-space geometry: adjacency for the walk, areas for the
@@ -107,9 +113,10 @@
       })
       .sort((p, q) => q.area - p.area);
 
-    // Walkers start on large, well-separated cells. Bursts are a single
-    // GLOBAL event (nextBurstAt in tick), so synchronization is structural;
-    // per-walker state is just the current cell and the hops left.
+    // Walkers start on large, well-separated cells. Bursts and beats are
+    // single GLOBAL events (nextBurstAt / nextHopAt in tick), so the
+    // walkers' synchronization is structural; per-walker state is just the
+    // current cell and the hops left.
     const walkers: any[] = [];
     for (const { i } of byArea) {
       if (walkers.length >= WALKERS) break;
@@ -117,7 +124,7 @@
       if (
         walkers.every((w) => Math.hypot(seeds[w.cell].x - s.x, seeds[w.cell].y - s.y) > 0.55)
       )
-        walkers.push({ cell: i, burstLeft: 0, tNext: 0 });
+        walkers.push({ cell: i, burstLeft: 0 });
     }
     // visited: cell -> time of (most recent) visit
     const visited = new Map<number, number>();
@@ -133,7 +140,7 @@
         sub = Array.from({ length: 8 }, () => ({
           fx: (r() - 0.5) * 1.7,
           fy: (r() - 0.5) * 1.7,
-          light: 66 + r() * 22,
+          fill: `hsl(${seeds[i].hue} 55% ${66 + r() * 22}%)`,
           // ops in this sub-cell: the first sits on the sub-seed itself,
           // which is inside its own Voronoi region by definition, so every
           // sub-partition is guaranteed at least one dot
@@ -151,19 +158,21 @@
     };
 
     const step = (w: any, t: number) => {
-      const taken = new Set<number>();
-      for (const o of walkers) {
-        if (o !== w) taken.add(o.cell);
-      }
-      const nbrs = [...delaunayL.neighbors(w.cell)].filter((c) => c >= 0 && !taken.has(c));
+      // occupied cells are off-limits (w's own cell is never its neighbor)
+      const taken = new Set<number>(walkers.map((o) => o.cell));
+      // Voronoi neighbors, not Delaunay: two cells can be Delaunay-adjacent
+      // while the clip box cuts away the border they'd share (common along
+      // the banner's edges), and hopping between those reads as a jump.
+      // vorL.neighbors yields only cells that share a visible border.
+      const nbrs = [...vorL.neighbors(w.cell)].filter((c) => !taken.has(c));
       if (nbrs.length === 0) return; // fully boxed in; try again next round
       const unvisited = nbrs.filter((c) => !visited.has(c));
       let next: number;
       if (unvisited.length) {
         next = unvisited[Math.floor(Math.random() * unvisited.length)];
       } else {
-        // dead end: re-enter the least-recently-visited neighbor
-        nbrs.sort((a, b) => (visited.get(a) ?? 0) - (visited.get(b) ?? 0));
+        // dead end: every neighbor is in visited — re-enter the least recent
+        nbrs.sort((a, b) => visited.get(a)! - visited.get(b)!);
         next = nbrs[0];
       }
       w.cell = next;
@@ -176,18 +185,19 @@
     const bctx = base.getContext("2d")!;
     let cssW = 0;
     let cssH = 0;
+    let S = 0; // px per logical unit (equals cssH: logical height is 1)
     let pxPts: number[][] = [];
     let vorPx: any = null;
 
+    // For cells whose polygon is already in hand (drawSelection needs it for
+    // the bbox anyway); cells traced only to paint use vor.renderCell instead
     const tracePoly = (c: CanvasRenderingContext2D, poly: number[][]) => {
       c.beginPath();
       c.moveTo(poly[0][0], poly[0][1]);
-      for (const [x, y] of poly) c.lineTo(x, y);
+      for (let k = 1; k < poly.length; k++) c.lineTo(poly[k][0], poly[k][1]);
       c.closePath();
     };
 
-    // Op dots share one style everywhere (base layer, sub-partitions, the
-    // redraw pass over sub-cells)
     const drawDots = (
       c: CanvasRenderingContext2D,
       x: number,
@@ -195,9 +205,9 @@
       offsets: number[][],
       sx: number,
       sy: number,
-      hue: number,
+      color: string,
     ) => {
-      c.fillStyle = `hsl(${hue} 70% 45% / 0.85)`;
+      c.fillStyle = color;
       for (const [dx, dy] of offsets) {
         c.beginPath();
         c.arc(x + dx * sx, y + dy * sy, 1.4, 0, Math.PI * 2);
@@ -209,7 +219,8 @@
       const w = canvas.clientWidth || canvas.parentElement?.clientWidth || 0;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       cssW = w;
-      cssH = w / ASPECT;
+      S = w / ASPECT;
+      cssH = S;
       canvas.style.height = cssH + "px";
       canvas.width = base.width = Math.round(w * dpr);
       canvas.height = base.height = Math.round(cssH * dpr);
@@ -217,25 +228,26 @@
       bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (cssW < 10) return;
 
-      const S = cssW / ASPECT;
+      // The pixel diagram is the logical one scaled uniformly by S — clip
+      // box included — which is what lets vorL's adjacency (and its shared
+      // borders, the walk's whole premise) stand in for vorPx's.
       pxPts = points.map(([x, y]) => [x * S, y * S]);
-      vorPx = Delaunay.from(pxPts).voronoi([0, 0, cssW, cssH]);
+      vorPx = Delaunay.from(pxPts).voronoi([0, 0, ASPECT * S, S]);
 
       bctx.clearRect(0, 0, cssW, cssH);
       bctx.lineJoin = "round";
+      bctx.strokeStyle = "#3a3a3a";
+      bctx.lineWidth = 0.8;
       for (let i = 0; i < seeds.length; i++) {
-        const poly = vorPx.cellPolygon(i);
-        if (!poly) continue;
         const s = seeds[i];
-        tracePoly(bctx, poly);
+        bctx.beginPath();
+        vorPx.renderCell(i, bctx);
         bctx.fillStyle = `hsl(${s.hue} ${s.sat}% ${s.light}%)`;
         bctx.fill();
-        bctx.strokeStyle = "#3a3a3a";
-        bctx.lineWidth = 0.8;
         bctx.stroke();
       }
       for (let i = 0; i < seeds.length; i++)
-        drawDots(bctx, pxPts[i][0], pxPts[i][1], seeds[i].dots, S, S, seeds[i].hue);
+        drawDots(bctx, pxPts[i][0], pxPts[i][1], seeds[i].dots, S, S, seeds[i].dotColor);
       draw();
     }
 
@@ -262,29 +274,27 @@
       tracePoly(ctx, poly);
       ctx.clip();
       const sub = Delaunay.from(sp).voronoi([minx, miny, maxx, maxy]);
+      ctx.strokeStyle = "#3a3a3a";
+      ctx.lineWidth = 0.6;
       for (let k = 0; k < sp.length; k++) {
-        const q = sub.cellPolygon(k);
-        if (!q) continue;
-        tracePoly(ctx, q);
-        ctx.fillStyle = `hsl(${s.hue} 55% ${subSeeds[k].light}%)`;
+        ctx.beginPath();
+        sub.renderCell(k, ctx);
+        ctx.fillStyle = subSeeds[k].fill;
         ctx.fill();
-        ctx.strokeStyle = "#3a3a3a";
-        ctx.lineWidth = 0.6;
         ctx.stroke();
       }
       // each sub-partition's own ops, drawn after every sub-cell fill so a
       // neighboring fill can't paint over a dot near a shared edge
       for (let k = 0; k < sp.length; k++)
-        drawDots(ctx, sp[k][0], sp[k][1], subSeeds[k].dots, hw, hh, s.hue);
+        drawDots(ctx, sp[k][0], sp[k][1], subSeeds[k].dots, hw, hh, s.dotColor);
       // the sub-cells also painted over the base layer's op dots: redraw
       // every dot that can land in this cell (still clipped to it)
-      const S = cssW / ASPECT;
       const pad = 0.1 * S; // max dot offset from its seed
       for (let j = 0; j < seeds.length; j++) {
         const [jx, jy] = pxPts[j];
         if (jx < minx - pad || jx > maxx + pad || jy < miny - pad || jy > maxy + pad)
           continue;
-        drawDots(ctx, jx, jy, seeds[j].dots, S, S, seeds[j].hue);
+        drawDots(ctx, jx, jy, seeds[j].dots, S, S, seeds[j].dotColor);
       }
       ctx.restore();
       tracePoly(ctx, poly);
@@ -309,55 +319,60 @@
     resize();
     new ResizeObserver(resize).observe(canvas);
 
+    // Under prefers-reduced-motion the walk is skipped, but the ticker
+    // still runs: its size re-check below is the fallback for exactly the
+    // panes where the ResizeObserver is unreliable.
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return; // walk off: the static frame above is all there is
 
     // Pause while scrolled past — but only trust the observer when the
     // document is genuinely visible: embedded panes can report "hidden"
     // while displaying the page, and there the observer may never fire.
     let inView = true;
-    new IntersectionObserver(([entry]) => {
-      inView = entry.isIntersecting;
-    }).observe(canvas);
+    if (!reduced)
+      new IntersectionObserver(([entry]) => {
+        inView = entry.isIntersecting;
+      }).observe(canvas);
 
     const t00 = performance.now();
     let nextBurstAt = WALK_EVERY; // one global clock: all walks start together
+    let nextHopAt = 0; // one global beat: all pending walkers step together
     const tick = () => {
       if (canvas.clientWidth !== cssW) resize(); // RO-independent size tracking
+      if (reduced) return; // static frame: the tick only keeps it sized
       if (cssW < 10) return; // not laid out yet
       if (!inView && document.visibilityState === "visible") return;
       const t = (performance.now() - t00) / 1000;
       if (t >= nextBurstAt) {
         nextBurstAt = t + WALK_EVERY;
-        for (const w of walkers) {
+        for (const w of walkers)
           w.burstLeft = BURST_MIN + Math.floor(Math.random() * (BURST_MAX - BURST_MIN + 1));
-          w.tNext = t; // first hop lands this tick
-        }
+        nextHopAt = t; // first beat lands this tick
       }
+      if (t < nextHopAt) return; // fully idle between beats
       let hopped = false;
       for (const w of walkers) {
-        if (w.burstLeft > 0 && t >= w.tNext) {
+        if (w.burstLeft > 0) {
           step(w, t);
           w.burstLeft--;
-          w.tNext = t + HOP_GAP;
           hopped = true;
         }
       }
-      // fully idle between hops: draw only when a hop just landed
-      if (hopped) draw();
+      if (!hopped) return; // between bursts: every walk exhausted
+      nextHopAt = t + HOP_GAP;
+      draw();
     };
     // Worker-driven ticks, not rAF or a main-thread interval: embedded
     // panes can report the document "hidden" even while displaying it,
     // which suppresses rAF and clamps main-thread timers to ~1Hz. Worker
     // timers aren't visibility-throttled. 250ms granularity is plenty for
-    // events on 1s hop beats and keeps idle wakeups cheap.
-    const worker = new Worker(
-      URL.createObjectURL(
-        new Blob(["setInterval(() => postMessage(0), 250);"], {
-          type: "application/javascript",
-        }),
-      ),
+    // beats 1s apart and keeps idle wakeups cheap.
+    const workerUrl = URL.createObjectURL(
+      new Blob(["setInterval(() => postMessage(0), 250);"], {
+        type: "application/javascript",
+      }),
     );
+    const worker = new Worker(workerUrl);
+    URL.revokeObjectURL(workerUrl); // already fetched; don't pin the blob
     worker.onmessage = tick;
   }
 
