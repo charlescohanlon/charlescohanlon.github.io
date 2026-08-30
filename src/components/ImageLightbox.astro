@@ -72,6 +72,12 @@
     background: none;
     cursor: zoom-out;
   }
+  /* showModal() focuses the dialog itself when the caption holds no link,
+     and the UA paints its focus ring around the whole figure. */
+  .lightbox:focus,
+  .lightbox:focus-visible {
+    outline: none;
+  }
   .lightbox::backdrop {
     background: rgb(0 0 0 / 0.8);
   }
