@@ -64,7 +64,7 @@ We adopt the embedding hit rate and Gini coefficient proxy metrics proposed by [
 OpsVerse is a set of executed work-order operations (ops) and a co-occurrence signal. The VLM used in experiments consumes executed ops as images and HTML text. The raw data undergoes several decluttering and normalization transformations.
 
 ![[assets/vlm_input_examples_ops_gr.png]]
-**Figure 2.** Four OpsVerse operations exactly as the VLM encoder receives them: two co-occurring (anchor, positive) pairs, one pair per row. **Note:** for confidentiality purposes, text is redacted; images are synthetic and blurred.
+**Figure 2.** Four OpsVerse operations exactly as the VLM encoder receives them: two co-occurring (anchor, positive) pairs, one pair per row. Note: for confidentiality purposes, text is redacted; images are synthetic and blurred.
 
 Co-occurrence is a similarity signal. Intuitively, we think of collections as "baskets" (or sequences) of "items." Two items co-occur (i.e., are similar) if they appear together in any basket. The basket-item graph is bipartite (one set of vertices for baskets, the other for items). An edge exists between vertices when a basket contains an item.
 
