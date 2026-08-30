@@ -36,12 +36,12 @@ const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
       <ul class="space-y-6">
         {posts.map((post) => (
           <li>
-            <p class="text-xs text-muted mb-1">
-              {formatDate(post.data.date)}
-            </p>
             <h2 class="text-lg font-semibold">
               <a href={`/blog/${postSlug(post.id)}`}>{post.data.title}</a>
             </h2>
+            <p class="text-xs text-muted mt-1">
+              {formatDate(post.data.date)}
+            </p>
             {post.data.description && (
               <p class="text-sm text-muted mt-1">
                 {post.data.description}
