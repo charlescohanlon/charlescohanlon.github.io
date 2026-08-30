@@ -7,9 +7,9 @@ const about = await getEntry("pages", "about");
 if (!about) throw new Error("Missing content/pages/about.md");
 const { Content } = await render(about);
 
-const news = (await getCollection("news"))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 6);
+const news = (await getCollection("news")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
 
 const newsItems = await Promise.all(
   news.map(async (item) => ({

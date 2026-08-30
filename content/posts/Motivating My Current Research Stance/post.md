@@ -5,6 +5,7 @@ date: 2026-06-06
 tags: []
 draft: true
 ---
+
 # Motivating My Research Stance: prerequisites of superintelligence
 
 The following is by no means a rigorous argument. I try hard not to overclaim. I do not have the wisdom or experience required to bet against trillion-dollar frontier laboratories. Although I echo the ideas of some who do. I merely seek to explain what my experience interacting with Large Language Model (LLM) based AI and its literature has led me to believe.

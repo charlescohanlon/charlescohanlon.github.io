@@ -36,6 +36,8 @@ const research = defineCollection({
     image: z.string().optional(),
     link: z.string().url().optional(),
     code: z.string().url().optional(),
+    // Full attribution sentence, e.g. "Funded by the National Cancer Institute"
+    funding: z.string().optional(),
     presentations: z
       .array(
         z.object({

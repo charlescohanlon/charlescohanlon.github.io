@@ -10,6 +10,6 @@ Led weekly labs and office hours for 50+ students in upper-division Introduction
 
 ## Curriculum Design Contributor - CSU AI Educational Innovations Challenge
 
-*Cal Poly San Luis Obispo, Aug 2025 – Present*
+*Cal Poly San Luis Obispo, Aug 2025 – Dec 2025*
 
 Contributed to the CSU AI Educational Innovations Challenge ($3M systemwide initiative). Co-designed an experiential learning framework where students construct and refine autonomous agents integrated with generative AI tools.
