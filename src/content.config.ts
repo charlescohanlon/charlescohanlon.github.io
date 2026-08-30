@@ -18,6 +18,10 @@ const posts = defineCollection({
       // animated hero (it takes precedence; see blog/[...slug].astro) —
       // `hero` then serves as the static fallback.
       hero: image().optional(),
+      // Link-preview card (og:image / twitter:image), resolved relative to
+      // post.md. Aim for 1200x630 (or 2x) — a screenshot of the page top
+      // works well for posts with a hero.
+      ogImage: image().optional(),
     }),
 });
 

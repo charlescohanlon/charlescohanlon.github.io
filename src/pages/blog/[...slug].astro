@@ -40,7 +40,13 @@ const Hero = heroPath ? heroModules[heroPath].default : null;
 const hasHero = Boolean(Hero || post.data.hero);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description} hideSidebar>
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.ogImage}
+  ogType="article"
+  hideSidebar
+>
   {/* Title block, then the hero across the whole content container, then
       the article column — the hero separates title from abstract, so the
       header's rule only draws when there is no hero. */}
