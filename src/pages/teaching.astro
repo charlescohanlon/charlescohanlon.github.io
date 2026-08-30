@@ -12,7 +12,16 @@ const { Content } = await render(page);
     <h1 class="page__title m-0">{page.data.title}</h1>
   </header>
 
-  <div class="prose prose-sm max-w-none">
+  <div class="prose prose-sm max-w-none teaching-content">
     <Content />
   </div>
 </BaseLayout>
+
+<style>
+  /* The italic institution/date line under each role heading is the
+     heading's subtitle — tuck it under the h2 instead of letting it float
+     mid-way between heading and body on full paragraph margins. */
+  .teaching-content :global(h2 + p:has(> em:only-child)) {
+    margin-top: -0.625rem;
+  }
+</style>
