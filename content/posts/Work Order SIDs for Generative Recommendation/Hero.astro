@@ -186,6 +186,7 @@
     let cssW = 0;
     let cssH = 0;
     let S = 0; // px per logical unit (equals cssH: logical height is 1)
+    let dotR = 1.4; // op-dot radius, set per size in resize()
     let pxPts: number[][] = [];
     let vorPx: any = null;
 
@@ -210,7 +211,7 @@
       c.fillStyle = color;
       for (const [dx, dy] of offsets) {
         c.beginPath();
-        c.arc(x + dx * sx, y + dy * sy, 1.4, 0, Math.PI * 2);
+        c.arc(x + dx * sx, y + dy * sy, dotR, 0, Math.PI * 2);
         c.fill();
       }
     };
@@ -221,6 +222,11 @@
       cssW = w;
       S = w / ASPECT;
       cssH = S;
+      // Dots scale with the diagram (1.4px at the fallback PNG's S=400) so
+      // narrow screens keep desktop's dot-to-cell proportion — and so the
+      // canvas takeover matches the CSS-scaled static fallback. Floored so
+      // dots stay visible on the smallest screens.
+      dotR = Math.max(0.6, 1.4 * (S / 400));
       canvas.style.height = cssH + "px";
       canvas.width = base.width = Math.round(w * dpr);
       canvas.height = base.height = Math.round(cssH * dpr);
