@@ -150,6 +150,13 @@
       border-radius: 50%;
       background: rgb(0 0 0 / 0.55);
       color: #fff;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* showModal() auto-focuses the close button (the dialog's only focusable
+       element), and the UA paints its focus ring on it. */
+    .lightbox__close:focus,
+    .lightbox__close:focus-visible {
+      outline: none;
     }
     .lightbox--zoomed .lightbox__img {
       max-width: none;
