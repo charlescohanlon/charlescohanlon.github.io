@@ -2,6 +2,10 @@
 title: "Teaching"
 ---
 
+<!-- The fully-italic line right under each role heading is styled as its
+     subtitle (tucked under the heading; see .prose rules in global.css).
+     Keep it a single *...* run for that styling to apply. -->
+
 ## Teaching Assistant - CSC 480: Artificial Intelligence
 
 *California Polytechnic State University, San Luis Obispo, Sep 2025 – Dec 2025*

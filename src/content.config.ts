@@ -36,7 +36,8 @@ const research = defineCollection({
     image: z.string().optional(),
     link: z.string().url().optional(),
     code: z.string().url().optional(),
-    // Full attribution sentence, e.g. "Funded by the National Cancer Institute"
+    // Full attribution sentence, e.g. "Sponsored by the Menlo Park Fire
+    // Protection District" — each entry picks its own verb.
     funding: z.string().optional(),
     presentations: z
       .array(

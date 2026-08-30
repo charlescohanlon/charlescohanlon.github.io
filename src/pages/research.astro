@@ -1,17 +1,31 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCollection, getEntry, render } from "astro:content";
+import { getSettings } from "@/config";
 
 const page = await getEntry("pages", "research");
 if (!page) throw new Error("Missing content/pages/research.md");
 const { Content } = await render(page);
 const hasIntro = !!page.body?.trim();
 
+const site = await getSettings();
+
 const projects = (await getCollection("research")).sort((a, b) => {
   const aTime = a.data.date?.valueOf() ?? 0;
   const bTime = b.data.date?.valueOf() ?? 0;
   return bTime - aTime;
 });
+
+// The card's bottom links row: project-level resources first, then any
+// presentation artifacts, labeled by their type.
+const projectLinks = (p: (typeof projects)[number]) =>
+  [
+    p.data.link && (["Link", p.data.link] as const),
+    p.data.code && (["Code", p.data.code] as const),
+    ...p.data.presentations.map(
+      (pres) => pres.pdf && ([pres.type ?? "PDF", pres.pdf] as const)
+    ),
+  ].filter((l): l is readonly [string, string] => Boolean(l));
 ---
 
 <BaseLayout title={page.data.title} description={page.data.description}>
@@ -64,7 +78,7 @@ const projects = (await getCollection("research")).sort((a, b) => {
                             {pres.authors.map((author, i) => (
                               <>
                                 {i > 0 && ", "}
-                                {author === "Charles O'Hanlon" ? (
+                                {author === site.author.name ? (
                                   <strong>{author}</strong>
                                 ) : (
                                   author
@@ -84,23 +98,11 @@ const projects = (await getCollection("research")).sort((a, b) => {
                 <p class="text-xs text-muted mt-3">{p.data.funding}</p>
               )}
               <p class="text-sm mt-3 flex gap-3">
-                {p.data.link && (
-                  <a href={p.data.link} target="_blank" rel="noopener">
-                    [Link]
+                {projectLinks(p).map(([label, href]) => (
+                  <a href={href} target="_blank" rel="noopener">
+                    [{label}]
                   </a>
-                )}
-                {p.data.code && (
-                  <a href={p.data.code} target="_blank" rel="noopener">
-                    [Code]
-                  </a>
-                )}
-                {p.data.presentations
-                  .filter((pres) => pres.pdf)
-                  .map((pres) => (
-                    <a href={pres.pdf} target="_blank" rel="noopener">
-                      [{pres.type ?? "PDF"}]
-                    </a>
-                  ))}
+                ))}
               </p>
             </div>
           </article>

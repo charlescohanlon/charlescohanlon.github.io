@@ -126,6 +126,15 @@
   --tw-prose-td-borders: var(--color-rule);
 }
 
+/* Markdown convention: an italic-only paragraph directly after a heading is
+   that heading's subtitle (e.g. the institution/date lines on the teaching
+   page) — tuck it under the heading instead of letting it float mid-way on
+   full paragraph margins. The heading's bottom margin and the paragraph's
+   top margin collapse, so only a negative margin can shrink the gap. */
+.prose h2 + p:has(> em:only-child) {
+  margin-top: -0.625rem;
+}
+
 .page__title {
   font-size: 1.953em;
   font-weight: 700;
